@@ -1,10 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Результаты конкурса {название конкурса}</title>
-</head>
-<body style="font-size: xxx-large">
-    Результаты конкурса {{ contest }}
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h1>{{ title }}</h1>
+    Результаты голосования конкурса {{ contest }}
+</div>
+{% endblock %}

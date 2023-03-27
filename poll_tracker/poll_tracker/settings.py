@@ -30,7 +30,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'api.apps.ApiConfig',
     'contests.apps.ContestsConfig',
     'users.apps.UsersConfig',
 ]
