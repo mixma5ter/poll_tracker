@@ -191,13 +191,23 @@ class Criteria(CreatedModel):
     )
     title = models.CharField(
         max_length=255,
-        verbose_name='Название критерия конкурса',
+        verbose_name='Название критерия',
         help_text='Введите название критерия конкурса',
     )
     description = models.TextField(
         blank=True,
         verbose_name='Описание',
         help_text='Введите описание критерия этапа конкурса',
+    )
+    min_score = models.SmallIntegerField(
+        default=0,
+        verbose_name='Минимальная оценка',
+        help_text='Минимальная оценка критерия',
+    )
+    max_score = models.SmallIntegerField(
+        default=10,
+        verbose_name='Максимальная оценка',
+        help_text='Максимальная оценка критерия',
     )
 
     def __str__(self):

@@ -66,7 +66,7 @@ class Score(CreatedModel):
         verbose_name='Команда',
         help_text='Выберите команду',
     )
-    score = models.PositiveSmallIntegerField(
+    score = models.SmallIntegerField(
         default=0,
         verbose_name='Оценка',
         help_text='Выберите оценку',
