@@ -1,0 +1,19 @@
+<!-- templates/contests/contest_stage.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-4">
+  <h1 class="text-center">Страница голосования</h1>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+  <form method="post" action="" class="form-horizontal">
+    <input class="btn btn-lg btn-outline-primary" type="submit" value="Оценить" />
+    <div class="p-4"></div><!-- отступ -->
+  </form>
+</div>
+
+{% endblock %}

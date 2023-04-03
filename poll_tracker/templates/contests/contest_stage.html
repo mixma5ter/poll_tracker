@@ -1,10 +1,42 @@
+<!-- templates/contests/contest_stage.html -->
 {% extends 'base.html' %}
 
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1>{{ title }}</h1>
-    Конкурс {{ contest }} поток {{ track }} этап {{ stage }}
+
+<!-- breadcrumbs -->
+<div class="container py-2">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'contests:contest_detail' contest.pk %}">{{ contest }}</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ track }}</li>
+    </ol>
+  </nav>
 </div>
+<!-- breadcrumbs -->
+
+<div class="container py-4">
+  <h1 class="text-center">{{ title }}</h1>
+  <br>
+  <h6 class="text-center">Дата проведения: {{ track.start_date }}</h6>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+
+  <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
+  {% if contest.is_active %}
+  {% for stage in stages %}
+    <a href="{% url 'contests:contest_polling' contest.pk track.pk stage.pk %}"
+       class="btn btn-lg btn-outline-primary">
+      {{ stage.title }}
+    </a>
+    <div class="p-1"></div><!-- отступ -->
+  {% endfor %}
+  {% endif %}
+
+  <div class="p-4"></div><!-- отступ -->
+</div>
+
 {% endblock %}

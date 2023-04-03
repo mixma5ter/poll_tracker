@@ -1,56 +1,89 @@
 from django.shortcuts import render
+from django.views.generic import CreateView, DetailView, ListView
+
+from contests.models import Contest, Stage, Track
+from scores.forms import AddScoreForm
 
 
-def contests_list(request):
+class ContestsListView(ListView):
     """Страница со списком конкурсов."""
 
-    template = 'contests/contest_list.html'
-    context = {
-        'title': 'Список конкурсов',
-    }
-    return render(request, template, context)
+    model = Contest
+    template_name = 'contests/contest_list.html'
+    context_object_name = 'contests'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Конкурсы'
+        return context
+
+    def get_queryset(self):
+        return Contest.objects.filter(visible=True).order_by('-start_date')
 
 
-def contest_detail(request, contest_id: int):
+class ContestDetailView(DetailView):
     """Страница конкурса с описанием."""
 
-    template = 'contests/contest_detail.html'
-    context = {
-        'title': f'Описание конкурса',
-        'contest': contest_id,
-    }
-    return render(request, template, context)
+    model = Contest
+    template_name = 'contests/contest_detail.html'
+    context_object_name = 'contest'
+    pk_url_kwarg = 'contest_pk'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Описание конкурса'
+        context['tracks'] = Track.objects.filter(contest=self.get_object()).order_by('pub_date')
+        return context
 
 
-def contest_result(request, contest_id):
-    """Страница результатов конкурса."""
+class ContestStageView(DetailView):
+    """Страница выбора этапа конкурса."""
 
-    template = 'contests/contest_result.html'
-    context = {
-        'title': f'Результаты голосования',
-        'contest': contest_id,
-    }
-    return render(request, template, context)
+    model = Contest
+    template_name = 'contests/contest_stage.html'
+    context_object_name = 'contest'
+    pk_url_kwarg = 'contest_pk'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        track_id = self.kwargs['track_pk']
+        track = Track.objects.get(pk=track_id)
+        context['title'] = 'Этапы конкурса'
+        context['track'] = track
+        context['stages'] = Stage.objects.filter(contest=self.get_object())
+        return context
 
 
-def contest_stage(request, contest_id, contest_track_id, stage_id):
+class ScoreCreateView(CreateView):
     """Страница голосования."""
 
-    template = 'contests/contest_stage.html'
-    context = {
-        'title': f'Страница голосования',
-        'contest': contest_id,
-        'track': contest_track_id,
-        'stage': stage_id,
-    }
-    return render(request, template, context)
+    model = Contest
+    form_class = AddScoreForm
+    template_name = 'contests/contest_polling.html'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Страница голосования'
+        context['form'] = AddScoreForm
+        return context
+
+
+class ContestResultView(DetailView):
+    """Страница конкурса с описанием."""
+
+    model = Contest
+    template_name = 'contests/contest_result.html'
+    context_object_name = 'contest'
+    pk_url_kwarg = 'contest_pk'
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = 'Результаты голосования'
+        return context
 
 
 def contest_error(request):
-    """Страница ошибки."""
+    """Страница ошибки если нет доступных конкурсов."""
 
     template = 'contests/contest_error.html'
-    context = {
-        'title': 'Страница временно не доступна',
-    }
-    return render(request, template, context)
+    return render(request, template)

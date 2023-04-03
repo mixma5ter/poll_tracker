@@ -1,10 +1,56 @@
+<!-- templates/contests/contest_detail.html -->
 {% extends 'base.html' %}
 
-{% block title %}{{ title }}{% endblock %}
+{% block title %}Конкурс: {{ contest.title }}{% endblock %}
 
 {% block content %}
-<div class="container py-5">
-    <h1>{{ title }}</h1>
-    Конкурс {{ contest }}
-</div>
+
+  <!-- breadcrumbs -->
+  <div class="container py-2">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ contest }}</li>
+      </ol>
+    </nav>
+  </div>
+  <!-- breadcrumbs -->
+
+  <div class="container py-4">
+    <h1 class="text-center">{{ contest.title }}</h1>
+    <br>
+    <h6 class="text-center">Дата проведения: {{ contest.start_date }}</h6>
+  </div>
+
+  <div class="d-grid gap-2 col-6 mx-auto">
+
+    <!-- если есть описание конкурса, отображаем его -->
+    {% if contest.description %}
+      <h5 class="text-lg-start">Описание конкурса</h5>
+      {{ contest.description | linebreaksbr }}
+      <div class="p-2"></div><!-- отступ -->
+    {% endif %}
+
+    <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
+    {% if contest.is_active %}
+    {% for track in tracks %}
+      <a href="{% url 'contests:contest_stage' contest.pk track.pk %}"
+         class="btn btn-lg btn-outline-primary">
+        {{ track.title }}
+      </a>
+      <div class="p-1"></div><!-- отступ -->
+    {% endfor %}
+    {% endif %}
+
+    <!-- если текущая дата больше даты окончания конкурса и конкурс не активен, отображаем кнопку результатов -->
+    {% if today > contest.end_date and not contest.is_active %}
+    <a href="{% url 'contests:contest_result' contest.pk %}"
+       class="btn btn-lg btn-outline-primary">
+      Посмотреть результаты голосования
+    </a>
+    {% endif %}
+
+    <div class="p-4"></div><!-- отступ -->
+  </div>
+
 {% endblock %}

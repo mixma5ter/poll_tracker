@@ -1,17 +1,29 @@
 from django.urls import path, include
 from . import views
+from .views import (ContestDetailView,
+                    ContestsListView,
+                    ContestResultView,
+                    ContestStageView,
+                    ScoreCreateView)
 
-app_name = 'contests'
+app_name = 'contests'  # namespace
 
 urlpatterns = [
     # Список конкурсов
-    path('', views.contests_list, name='contest_list'),
+    path('', ContestsListView.as_view(), name='contest_list'),
+
     # Просмотр конкурса (описание, выбор действий)
-    path('<int:contest_id>/', views.contest_detail, name='contest_detail'),
+    path('<int:contest_pk>/', ContestDetailView.as_view(), name='contest_detail'),
+
     # Результаты конкурса (таблица результатов, выбор действий)
-    path('<int:contest_id>/result/', views.contest_result, name='contest_result'),
-    # Этап голосования
-    path('<int:contest_id>/<int:contest_track_id>/<int:stage_id>/', views.contest_stage, name='contest_stage'),
+    path('<int:contest_pk>/result/', ContestResultView.as_view(), name='contest_result'),
+
+    # Страница выбора этапа конкурса
+    path('<int:contest_pk>/<int:track_pk>/', ContestStageView.as_view(), name='contest_stage'),
+
+    # Страница голосования
+    path('<int:contest_pk>/<int:track_pk>/<int:stage_pk>/', ScoreCreateView.as_view(), name='contest_polling'),
+
     # Страница ошибки
     path('error/', views.contest_error, name='contest_error'),
 ]

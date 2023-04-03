@@ -1,0 +1,19 @@
+<!-- templates/includes/contest_error.html -->
+{% load static %}
+
+<div class="container py-5">
+  <h1 class="text-center">
+    Страница временно не доступна
+  </h1>
+  <div class="p-4"></div>
+  <h4 class="text-center">
+    Попробуйте обновить страницу позже
+  </h4>
+</div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+  <a href="{% url 'contests:contest_list' %}" class="btn btn-outline-primary btn-lg">
+    Обновить страницу
+  </a>
+</div>
+<div class="p-4"></div>

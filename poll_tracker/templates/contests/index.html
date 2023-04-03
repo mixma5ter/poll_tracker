@@ -1,10 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Главная страница</title>
-</head>
-<body style="font-size: xxx-large">
-Главная страница
-</body>
-</html>
+<!-- templates/includes/index.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container py-5">
+  <h1 class="text-center">Главная страница</h1>
+</div>
+
+{% endblock %}

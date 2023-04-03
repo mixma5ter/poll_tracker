@@ -1,3 +1,9 @@
-Django==2.2.19
+Django==3.2.13
+django-debug-toolbar==3.2.4
+django-smart-selects==1.6.0
+et-xmlfile==1.1.0
+openpyxl==3.1.2
+Pillow==9.4.0
+python-dotenv==0.20.0
 pytz==2022.7.1
 sqlparse==0.4.3
