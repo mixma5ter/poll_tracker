@@ -1,0 +1,29 @@
+<!-- templates/contests/contest_list.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+  {% if contests %}
+
+    <div class="container py-5">
+      <h1 class="text-center">{{ title }}</h1>
+    </div>
+
+  {% for contest in contests %}
+    {% include "includes/contest_card.html" %}
+    <div class="p-4"></div><!-- отступ -->
+  {% endfor %}
+
+  {% else %}
+
+  {% include "includes/contest_error.html" %}
+
+  {% endif %}
+
+</div><!--container-->
+
+{% endblock %}

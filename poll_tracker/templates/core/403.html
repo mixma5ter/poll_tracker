@@ -1,0 +1,17 @@
+<!-- templates/core/403.html -->
+{% extends "base.html" %}
+
+{% block title %}403{% endblock %}
+
+{% block content %}
+  <div class="container py-5">
+    <h1 class="text-center">Отказано в доступе</h1>
+  </div>
+
+  <div class="d-grid gap-2 col-6 mx-auto">
+    <a href="{% url 'contests:contest_list' %}" class="btn btn-outline-primary btn-lg">
+      На главную
+    </a>
+  </div>
+  <div class="p-4"></div>
+{% endblock %}

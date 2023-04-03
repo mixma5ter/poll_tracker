@@ -1,0 +1,17 @@
+<!-- templates/includes/breadcrumbs.html -->
+<div class="container py-2">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
+      {% if contest %}
+      <li class="breadcrumb-item {% if not track %}active{% endif %}"><a href="{% url 'contests:contest_detail' contest.pk %}">{{ contest }}</a></li>
+      {% endif %}
+      {% if track %}
+      <li class="breadcrumb-item active" aria-current="page">{{ track }}</li>
+      {% endif %}
+      {% if res_title %}
+      <li class="breadcrumb-item active" aria-current="page">{{ res_title }}</li>
+      {% endif %}
+    </ol>
+  </nav>
+</div>

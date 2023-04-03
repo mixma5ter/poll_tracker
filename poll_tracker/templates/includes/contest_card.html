@@ -1,0 +1,28 @@
+<!-- templates/includes/contest_card.html -->
+{% load static %}
+
+<div class="card border-dark mb-3 text-center">
+  <div class="card-header">
+    <h2 class="card-title">{{ contest.title }}</h2>
+  </div>
+  <div class="card-body text-dark">
+    <p class="card-text">
+      {{ contest.description | linebreaksbr | truncatewords:25 }}
+    </p>
+
+    <!-- меняем цвет и контент кнопки в зависимости от contest.is_active -->
+    <a href="{% url 'contests:contest_detail' contest.pk %}"
+       class="btn btn-lg {% if contest.is_active %} btn-outline-danger {% else %} btn-outline-primary {% endif %}">
+      {% if contest.is_active %}
+        Голосование
+      {% else %}
+        Подробнее
+      {% endif %}
+    </a>
+
+
+  </div>
+  <div class="card-footer text-muted">
+    Дата проведения: {{ contest.start_date }}
+  </div>
+</div>
