@@ -82,6 +82,8 @@ class CriteriaAdmin(MyAdmin):
         'pk',
         'title',
         'description',
+        'min_score',
+        'max_score',
         'pub_date',
         'update_date',
     )
@@ -146,13 +148,13 @@ class ScoreAdmin(MyAdmin):
 
     list_display = (
         'pk',
+        'judge',
+        'contestant',
+        'criteria',
+        'score',
         'contest',
         'track',
         'stage',
-        'criteria',
-        'judge',
-        'contestant',
-        'score',
         'pub_date',
         'update_date',
     )
