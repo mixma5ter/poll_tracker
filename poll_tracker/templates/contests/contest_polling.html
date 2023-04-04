@@ -10,8 +10,15 @@
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto">
-  <form method="post" action="" class="form-horizontal">
-    <input class="btn btn-lg btn-outline-primary" type="submit" value="Оценить" />
+  <form class="form-horizontal" id="form-container" method="POST">
+    {% csrf_token %}
+    {{ formset.management_form }}
+    {% for form in formset %}
+    <div class="">
+    {{ form.as_table }}
+    </div>
+    {% endfor %}
+    <button class="btn btn-lg btn-outline-primary" type="submit">Оценить</button>
     <div class="p-4"></div><!-- отступ -->
   </form>
 </div>

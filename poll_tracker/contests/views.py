@@ -1,8 +1,9 @@
+from django.forms import modelformset_factory
 from django.shortcuts import render
 from django.views.generic import CreateView, DetailView, ListView
 
 from contests.models import Contest, Stage, Track
-from scores.forms import AddScoreForm
+from scores.models import Score
 
 
 class ContestsListView(ListView):
@@ -54,18 +55,48 @@ class ContestStageView(DetailView):
         return context
 
 
-class ScoreCreateView(CreateView):
+def add_score_view(request, contest_pk: int, track_pk: int, stage_pk: int):
     """Страница голосования."""
 
-    model = Contest
-    form_class = AddScoreForm
     template_name = 'contests/contest_polling.html'
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Страница голосования'
-        context['form'] = AddScoreForm
-        return context
+    contest = Contest.objects.get(pk=contest_pk)
+    track = Track.objects.get(pk=track_pk)
+    stage = Stage.objects.get(pk=stage_pk)
+
+    ScoreFormset = modelformset_factory(
+        Score,
+        fields=('score',),
+        extra=0
+    )
+
+    if request.method in ('POST', 'PUT'):
+        formset = ScoreFormset(
+            request.POST,
+            queryset=Score.objects.filter(
+                contest__pk=contest.id
+            ).filter(
+                track__pk=track.id
+            ).filter(
+                stage__pk=stage.id
+            )
+        )
+
+        if formset.is_valid():
+            instances = formset.save()
+            for instance in instances:
+                instance.contest_id = contest.id
+                instance.track_id = track.id
+                instance.stage_id = stage.id
+                instance.save()
+
+    formset = ScoreFormset(
+        queryset=Score.objects.filter(contest__id=contest.id)
+    )
+    context = {
+        'formset': formset
+    }
+    return render(request, template_name, context)
 
 
 class ContestResultView(DetailView):

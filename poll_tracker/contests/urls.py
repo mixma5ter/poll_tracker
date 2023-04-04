@@ -4,9 +4,10 @@ from .views import (ContestDetailView,
                     ContestsListView,
                     ContestResultView,
                     ContestStageView,
-                    ScoreCreateView)
+                    add_score_view)
 
 app_name = 'contests'  # namespace
+
 
 urlpatterns = [
     # Список конкурсов
@@ -22,7 +23,7 @@ urlpatterns = [
     path('<int:contest_pk>/<int:track_pk>/', ContestStageView.as_view(), name='contest_stage'),
 
     # Страница голосования
-    path('<int:contest_pk>/<int:track_pk>/<int:stage_pk>/', ScoreCreateView.as_view(), name='contest_polling'),
+    path('<int:contest_pk>/<int:track_pk>/<int:stage_pk>/', add_score_view, name='contest_polling'),
 
     # Страница ошибки
     path('error/', views.contest_error, name='contest_error'),
