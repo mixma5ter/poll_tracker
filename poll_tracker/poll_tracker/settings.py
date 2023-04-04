@@ -30,17 +30,17 @@ ALLOWED_HOSTS = ['127.0.0.1']
 # Application definition
 
 INSTALLED_APPS = [
+    'contests.apps.ContestsConfig',  # Регистрация приложения contests
+    'users.apps.UsersConfig',  # Регистрация приложения users
+    'scores.apps.ScoresConfig',  # Регистрация приложения scores
+    'core.apps.CoreConfig',  # Регистрация приложения core
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    'contests.apps.ContestsConfig',  # Регистрация приложения contests
-    'users.apps.UsersConfig',  # Регистрация приложения users
-    'scores.apps.ScoresConfig',  # Регистрация приложения scores
-    'core.apps.CoreConfig',  # Регистрация приложения core
 
     'debug_toolbar',  # Регистрация приложения DjDT
     'smart_selects',  # Регистрация приложения smart_selects для админки

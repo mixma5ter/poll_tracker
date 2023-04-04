@@ -13,6 +13,7 @@ class Score(CreatedModel):
     contest = models.ForeignKey(
         'contests.Contest',
         on_delete=models.CASCADE,
+        related_name='scores',
         verbose_name='Конкурс',
         help_text='Выберите конкурс',
     )
@@ -22,7 +23,7 @@ class Score(CreatedModel):
         chained_model_field='contest',
         show_all=False,
         auto_choose=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Поток',
         help_text='Выберите поток',
     )
@@ -32,7 +33,7 @@ class Score(CreatedModel):
         chained_model_field='contest',
         show_all=False,
         auto_choose=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Этап',
         help_text='Выберите этап',
     )
@@ -42,7 +43,7 @@ class Score(CreatedModel):
         chained_model_field='stages',
         show_all=False,
         auto_choose=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Критерий',
         help_text='Выберите критерий',
     )
@@ -52,7 +53,7 @@ class Score(CreatedModel):
         chained_model_field='tracks',
         show_all=False,
         auto_choose=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Судья',
         help_text='Выберите судью',
     )
@@ -62,7 +63,7 @@ class Score(CreatedModel):
         chained_model_field='tracks',
         show_all=False,
         auto_choose=True,
-        on_delete=models.PROTECT,
+        on_delete=models.CASCADE,
         verbose_name='Команда',
         help_text='Выберите команду',
     )

@@ -27,13 +27,13 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING(message))
             sys.exit()
 
-        tracks = Track.objects.filter(contest__pk=contest_id)
+        tracks = contest.tracks.all()
         if not tracks:
             message = f'Не созданы потоки для конкурса {contest.title}.'
             self.stdout.write(self.style.WARNING(message))
             sys.exit()
 
-        stages = Stage.objects.filter(contest__pk=contest_id)
+        stages = contest.stages.all()
         if not stages:
             message = f'Не созданы этапы для конкурса {contest.title}.'
             self.stdout.write(self.style.WARNING(message))
@@ -44,9 +44,9 @@ class Command(BaseCommand):
         criterias = Criteria.objects.filter(stages__in=stages)
 
         for track in tracks:
-            for stage in stages:
-                for contestant in contestants:
-                    for judge in judges:
+            for contestant in contestants:
+                for judge in judges:
+                    for stage in stages:
                         for criteria in criterias:
                             Score.objects.get_or_create(
                                 contest=contest,
