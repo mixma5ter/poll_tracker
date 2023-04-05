@@ -33,6 +33,7 @@ class Contestant(CreatedModel):
 
     def full_name(self):
         return '{}'.format(' - '.join(str(item) for item in [self.name, self.org_name] if item))
+
     full_name.short_description = 'Команда - Организация'
 
     def __str__(self):
@@ -61,6 +62,11 @@ class Judge(CreatedModel):
         verbose_name='ФИО',
         help_text='Введите ФИО',
     )
+    slug = models.SlugField(
+        max_length=255,
+        auto_created=True,
+        verbose_name='Слаг',
+    )
     org_name = models.CharField(
         blank=True,
         max_length=255,
@@ -81,6 +87,7 @@ class Judge(CreatedModel):
 
     def full_name(self):
         return '{}'.format(' - '.join(str(item) for item in [self.name, self.org_name] if item))
+
     full_name.short_description = 'ФИО - Организация'
 
     def __str__(self):
@@ -92,7 +99,7 @@ class Judge(CreatedModel):
         verbose_name_plural = 'Судьи'
         constraints = [
             models.UniqueConstraint(
-                fields=['name', 'org_name'],
+                fields=['name', 'org_name', 'slug'],
                 name='unique_judge_model'
             )
         ]

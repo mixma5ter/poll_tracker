@@ -5,17 +5,6 @@
 
 {% block content %}
 
-  <!-- breadcrumbs -->
-  <div class="container py-2">
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb">
-        <li class="breadcrumb-item"><a href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ contest }}</li>
-      </ol>
-    </nav>
-  </div>
-  <!-- breadcrumbs -->
-
   <div class="container py-4">
     <h1 class="text-center">{{ contest.title }}</h1>
     <br>
@@ -34,7 +23,7 @@
     <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
     {% if contest.is_active %}
     {% for track in tracks %}
-      <a href="{% url 'contests:contest_stage' contest.pk track.pk %}"
+      <a href="{% url 'contests:contest_stage' judge_slug contest.pk track.pk %}"
          class="btn btn-lg btn-outline-primary">
         {{ track.title }}
       </a>
@@ -44,7 +33,7 @@
 
     <!-- если текущая дата больше даты окончания конкурса и конкурс не активен, отображаем кнопку результатов -->
     {% if today > contest.end_date and not contest.is_active %}
-    <a href="{% url 'contests:contest_result' contest.pk %}"
+    <a href="{% url 'contests:contest_result' judge_slug contest.pk %}"
        class="btn btn-lg btn-outline-primary">
       Посмотреть результаты голосования
     </a>

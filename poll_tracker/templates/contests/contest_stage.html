@@ -5,18 +5,6 @@
 
 {% block content %}
 
-<!-- breadcrumbs -->
-<div class="container py-2">
-  <nav aria-label="breadcrumb">
-    <ol class="breadcrumb">
-      <li class="breadcrumb-item"><a href="{% url 'contests:contest_list' %}">Конкурсы</a></li>
-      <li class="breadcrumb-item"><a href="{% url 'contests:contest_detail' contest.pk %}">{{ contest }}</a></li>
-      <li class="breadcrumb-item active" aria-current="page">{{ track }}</li>
-    </ol>
-  </nav>
-</div>
-<!-- breadcrumbs -->
-
 <div class="container py-4">
   <h1 class="text-center">{{ title }}</h1>
   <br>
@@ -28,7 +16,7 @@
   <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
   {% if contest.is_active %}
   {% for stage in stages %}
-    <a href="{% url 'contests:contest_polling' contest.pk track.pk stage.pk %}"
+    <a href="{% url 'contests:contest_polling' judge_slug contest.pk track.pk stage.pk %}"
        class="btn btn-lg btn-outline-primary">
       {{ stage.title }}
     </a>

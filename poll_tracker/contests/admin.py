@@ -127,13 +127,15 @@ class JudgeAdmin(MyAdmin):
         'org_name',
         'description',
         'photo',
+        'slug',
         'pub_date',
         'update_date',
     )
     list_display_links = ('pk', 'name',)
+    prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name', 'org_name', 'description')
     list_filter = ('pub_date', 'update_date',)
-    fields = ('name', 'org_name', 'description', 'photo', 'get_html_photo',)
+    fields = ('name', 'org_name', 'description', 'photo', 'slug', 'get_html_photo',)
     readonly_fields = ('get_html_photo',)
 
     def get_html_photo(self, object):

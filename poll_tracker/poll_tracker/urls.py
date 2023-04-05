@@ -8,10 +8,11 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from django.conf import settings
 
+from contests.views import index
 
 urlpatterns = [
-    # При переходе пользователя на главную страницу, отправляем его на страницу с конкурсами
-    path('', RedirectView.as_view(url='contests/', permanent=False), name='index'),
+    # Главная страница
+    path('', index, name='index'),
     # Путь до страницы с конкурсами
     path('contests/', include('contests.urls', namespace='contests')),
     # Путь до админ-панели

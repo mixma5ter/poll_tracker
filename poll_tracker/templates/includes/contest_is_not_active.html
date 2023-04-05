@@ -1,9 +1,9 @@
-<!-- templates/includes/contest_error.html -->
+<!-- templates/includes/contest_is_not_active.html -->
 {% load static %}
 
 <div class="container py-5">
   <h1 class="text-center">
-    Страница временно не доступна
+    Нет активных конкурсов
   </h1>
   <div class="p-4"></div>
   <h4 class="text-center">
@@ -12,7 +12,7 @@
 </div>
 
 <div class="d-grid gap-2 col-6 mx-auto">
-  <a href="{% url 'contests:contest_list' %}" class="btn btn-outline-primary btn-lg">
+  <a href="{% url 'index' %}" class="btn btn-outline-primary btn-lg">
     Обновить страницу
   </a>
 </div>

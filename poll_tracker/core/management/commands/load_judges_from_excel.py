@@ -20,6 +20,7 @@ class Command(BaseCommand):
                 Judge.objects.get_or_create(
                     name=row[0].value,  # имя судьи (колонка 1)
                     description=row[1].value,  # описание (колонка 2)
+                    slug=row[2].value,  # слаг (колонка 3)
                 )
                 uploaded += 1
             except ValueError:

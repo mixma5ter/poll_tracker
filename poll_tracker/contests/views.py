@@ -1,25 +1,61 @@
 from django.forms import modelformset_factory
-from django.shortcuts import render
-from django.views.generic import CreateView, DetailView, ListView
+from django.http import Http404
+from django.shortcuts import render, redirect
+from django.views.generic import DetailView, ListView
 
-from contests.models import Contest, Stage, Track
+from contests.models import Contest, Track
 from scores.models import Score
+from users.models import Judge
+
+
+def index(request):
+    """Главная страница с регистрацией."""
+
+    template_name = 'contests/index.html'
+    title = 'Регистрация'
+    description = 'Для участия в конкурсе необходимо зарегистрироваться в качестве судьи.\n\n' \
+                  'Для этого выберете своё имя из списка ниже.'
+    button_text = 'Выберете своё имя'
+    breadcrumbs = [['', 'Главная']]
+
+    contests = Contest.objects.filter(is_active=True)
+    tracks = Track.objects.filter(contest__in=contests)
+    judges = Judge.objects.filter(tracks__in=tracks)
+
+    context = {
+        'title': title,
+        'description': description,
+        'button_text': button_text,
+        'judges': judges,
+        'breadcrumbs': breadcrumbs,
+    }
+
+    if len(judges) > 0:
+        return render(request, template_name, context)
+
+    return redirect('contests/error/')
 
 
 class ContestsListView(ListView):
     """Страница со списком конкурсов."""
 
-    model = Contest
     template_name = 'contests/contest_list.html'
     context_object_name = 'contests'
+
+    def get_queryset(self):
+        contests = Contest.objects.filter(is_active=True)
+        return contests.order_by('-start_date')
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Конкурсы'
+        context['judge_slug'] = self.kwargs['judge_slug']
+        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['breadcrumbs'] = [
+            ['/', 'Главная'],
+            ['', 'Конкурсы'],
+        ]
         return context
-
-    def get_queryset(self):
-        return Contest.objects.filter(visible=True).order_by('-start_date')
 
 
 class ContestDetailView(DetailView):
@@ -33,7 +69,14 @@ class ContestDetailView(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Описание конкурса'
-        context['tracks'] = Track.objects.filter(contest=self.get_object()).order_by('pub_date')
+        context['judge_slug'] = self.kwargs['judge_slug']
+        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['tracks'] = self.get_object().tracks.all().order_by('pub_date')
+        context['breadcrumbs'] = [
+            ['/', 'Главная'],
+            [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
+            ['', f'{self.get_object()}'],
+        ]
         return context
 
 
@@ -47,22 +90,33 @@ class ContestStageView(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
-        track_id = self.kwargs['track_pk']
-        track = Track.objects.get(pk=track_id)
         context['title'] = 'Этапы конкурса'
+        track = Track.objects.get(pk=self.kwargs['track_pk'])
         context['track'] = track
-        context['stages'] = Stage.objects.filter(contest=self.get_object())
+        context['stages'] = self.get_object().stages.all()
+        context['judge_slug'] = self.kwargs['judge_slug']
+        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['breadcrumbs'] = [
+            ['/', 'Главная'],
+            [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
+            [f'/contests/{self.kwargs["judge_slug"]}/{self.kwargs["contest_pk"]}',
+             f'{self.get_object()}'],
+            ['', f'{track}'],
+        ]
         return context
 
 
-def add_score_view(request, contest_pk: int, track_pk: int, stage_pk: int):
+def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, stage_pk: int):
     """Страница голосования."""
 
     template_name = 'contests/contest_polling.html'
 
     contest = Contest.objects.get(pk=contest_pk)
     track = Track.objects.get(pk=track_pk)
-    stage = Stage.objects.get(pk=stage_pk)
+    data = contest.scores.all().filter(
+        track__pk=track_pk).filter(
+        stage__pk=stage_pk).filter(
+        judge__slug=judge_slug)
 
     ScoreFormset = modelformset_factory(
         Score,
@@ -70,33 +124,36 @@ def add_score_view(request, contest_pk: int, track_pk: int, stage_pk: int):
         extra=0
     )
 
-    if request.method in ('POST', 'PUT'):
-        formset = ScoreFormset(
-            request.POST,
-            queryset=Score.objects.filter(
-                contest__pk=contest.id
-            ).filter(
-                track__pk=track.id
-            ).filter(
-                stage__pk=stage.id
-            )
-        )
-
+    if request.method == 'POST':
+        formset = ScoreFormset(request.POST, queryset=data)
         if formset.is_valid():
             instances = formset.save()
             for instance in instances:
-                instance.contest_id = contest.id
-                instance.track_id = track.id
-                instance.stage_id = stage.id
+                instance.contest_id = contest_pk
+                instance.track_id = track_pk
+                instance.stage_id = stage_pk
                 instance.save()
+    else:
+        formset = ScoreFormset(queryset=data)
 
-    formset = ScoreFormset(
-        queryset=Score.objects.filter(contest__id=contest.id)
-    )
+    breadcrumbs = [
+        ['/', 'Главная'],
+        [f'/contests/{judge_slug}/', 'Конкурсы'],
+        [f'/contests/{judge_slug}/{contest_pk}', contest],
+        [f'/contests/{judge_slug}/{contest_pk}/{track_pk}', track],
+        ['', f'Голосование'],
+    ]
+
     context = {
-        'formset': formset
+        'formset': formset,
+        'judge_name': Judge.objects.get(slug=judge_slug),
+        'breadcrumbs': breadcrumbs,
     }
-    return render(request, template_name, context)
+
+    if len(formset) > 0:
+        return render(request, template_name, context)
+
+    raise Http404()
 
 
 class ContestResultView(DetailView):
@@ -110,11 +167,13 @@ class ContestResultView(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Результаты голосования'
+        context['judge_slug'] = self.kwargs['judge_slug']
+        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
         return context
 
 
 def contest_error(request):
     """Страница ошибки если нет доступных конкурсов."""
 
-    template = 'contests/contest_error.html'
+    template = 'contests/contest_is_not_active.html'
     return render(request, template)

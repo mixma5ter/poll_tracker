@@ -11,15 +11,14 @@
     </p>
 
     <!-- меняем цвет и контент кнопки в зависимости от contest.is_active -->
-    <a href="{% url 'contests:contest_detail' contest.pk %}"
+    <a href="{% url 'contests:contest_detail' judge_slug contest.pk %}"
        class="btn btn-lg {% if contest.is_active %} btn-outline-danger {% else %} btn-outline-primary {% endif %}">
       {% if contest.is_active %}
-        Голосование
+        Перейти к голосованию
       {% else %}
         Подробнее
       {% endif %}
     </a>
-
 
   </div>
   <div class="card-footer text-muted">
