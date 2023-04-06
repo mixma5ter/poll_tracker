@@ -109,6 +109,7 @@ class ContestStageView(DetailView):
 def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, stage_pk: int):
     """Страница голосования."""
 
+    title = 'Голосование'
     template_name = 'contests/contest_polling.html'
 
     contest = Contest.objects.get(pk=contest_pk)
@@ -145,6 +146,7 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
     ]
 
     context = {
+        'title': title,
         'formset': formset,
         'judge_name': Judge.objects.get(slug=judge_slug),
         'breadcrumbs': breadcrumbs,
