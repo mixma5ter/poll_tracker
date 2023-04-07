@@ -22,18 +22,18 @@ class Command(BaseCommand):
         contest_id = options['contest_id']
         try:
             contest = Contest.objects.get(pk=contest_id)
-        except Exception as exc:
-            message = f'Конкурс с id = {contest_id} не существует - {exc}.'
+        except Contest.DoesNotExist:
+            message = f'Конкурс с id = {contest_id} не существует.'
             self.stdout.write(self.style.WARNING(message))
             sys.exit()
 
-        tracks = contest.tracks.all()
+        tracks = Track.objects.filter(contest=contest).prefetch_related('contestants')
         if not tracks:
             message = f'Не созданы потоки для конкурса {contest.title}.'
             self.stdout.write(self.style.WARNING(message))
             sys.exit()
 
-        stages = contest.stages.all()
+        stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
         if not stages:
             message = f'Не созданы этапы для конкурса {contest.title}.'
             self.stdout.write(self.style.WARNING(message))
@@ -41,10 +41,12 @@ class Command(BaseCommand):
 
         contestants = Contestant.objects.filter(tracks__in=tracks)
         judges = Judge.objects.filter(tracks__in=tracks)
-        criterias = Criteria.objects.filter(stages__in=stages)
+
+        # criterias = Criteria.objects.filter(stages__in=stages)
+        criterias = Criteria.objects.filter(stages__in=stages).select_related()
 
         for track in tracks:
-            for contestant in contestants:
+            for contestant in track.contestants.all():
                 for judge in judges:
                     for stage in stages:
                         for criteria in criterias:
