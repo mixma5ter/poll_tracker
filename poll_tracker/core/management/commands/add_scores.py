@@ -46,10 +46,10 @@ class Command(BaseCommand):
         criterias = Criteria.objects.filter(stages__in=stages).select_related()
 
         for track in tracks:
-            for contestant in track.contestants.all():
-                for judge in judges:
-                    for stage in stages:
-                        for criteria in criterias:
+            for stage in stages:
+                for contestant in track.contestants.all():
+                    for judge in track.judges.all():
+                        for criteria in stage.criterias.all():
                             Score.objects.get_or_create(
                                 contest=contest,
                                 track=track,
