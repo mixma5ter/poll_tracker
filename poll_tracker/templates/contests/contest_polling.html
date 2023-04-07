@@ -6,7 +6,7 @@
 {% block content %}
 
 <div class="container py-4">
-  <h1 class="text-center">{{ title }}</h1>
+  <h1 class="text-center">{{ stage.title }}</h1>
   <br>
   <h5 class="text-center">{{ description | linebreaksbr }}</h5>
 </div>
@@ -44,9 +44,12 @@
     </table>
   </div>
   <!-- Submit button -->
-  <div class="d-grid gap-2 col-6 mx-auto">
-    <button class="btn btn-lg btn-outline-primary" type="submit">{{ button_text }}</button>
-  </div>
+  {% if contest.is_active %}
+    <div class="d-grid gap-2 col-6 mx-auto">
+      <button class="btn btn-lg btn-outline-primary"
+              type="submit">{{ button_text }}</button>
+    </div>
+  {% endif %}
   <div class="p-4"></div>
 </form>
 

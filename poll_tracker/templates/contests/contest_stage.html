@@ -13,16 +13,14 @@
 
 <div class="d-grid gap-2 col-6 mx-auto">
 
-  <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
-  {% if contest.is_active %}
+  <!-- отображаем кнопки потоков конкурса -->
   {% for stage in stages %}
     <a href="{% url 'contests:contest_polling' judge_slug contest.pk track.pk stage.pk %}"
-       class="btn btn-lg btn-outline-primary">
+       class="btn btn-lg btn-outline-primary {% if not contest.is_active %} disabled {% endif %}">
       {{ stage.title }}
     </a>
     <div class="p-1"></div><!-- отступ -->
   {% endfor %}
-  {% endif %}
 
   <div class="p-4"></div><!-- отступ -->
 </div>

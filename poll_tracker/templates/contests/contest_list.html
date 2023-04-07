@@ -13,13 +13,13 @@
         <h1 class="text-center">{{ title }}</h1>
       </div>
 
-    {% for contest in contests %}
-      {% include "includes/contest_card.html" %}
-    {% endfor %}
+      {% for contest in contests %}
+        {% include "includes/contest_card.html" %}
+      {% endfor %}
 
     {% else %}
 
-    {% include "includes/contest_is_not_active.html" %}
+      {% include "includes/contest_is_not_active.html" %}
 
     {% endif %}
 

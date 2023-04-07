@@ -21,18 +21,21 @@
     {% endif %}
 
     <!-- если конкурс активен, отображаем кнопки потоков конкурса -->
+    <!-- для каждого судьи только потоки в которых он участвует -->
     {% if contest.is_active %}
-    {% for track in tracks %}
-      <a href="{% url 'contests:contest_stage' judge_slug contest.pk track.pk %}"
-         class="btn btn-lg btn-outline-primary">
-        {{ track.title }}
-      </a>
-      <div class="p-1"></div><!-- отступ -->
-    {% endfor %}
+      {% for track in tracks %}
+        {% if judge_name in track.judges.all %}
+          <a href="{% url 'contests:contest_stage' judge_slug contest.pk track.pk %}"
+             class="btn btn-lg btn-outline-primary">
+            {{ track.title }}
+          </a>
+          <div class="p-1"></div><!-- отступ -->
+        {% endif %}
+      {% endfor %}
     {% endif %}
 
-    <!-- если текущая дата больше даты окончания конкурса и конкурс не активен, отображаем кнопку результатов -->
-    {% if today > contest.end_date and not contest.is_active %}
+    <!-- если конкурс видим и не активен, отображаем кнопку результатов -->
+    {% if contest.visible and not contest.is_active %}
     <a href="{% url 'contests:contest_result' judge_slug contest.pk %}"
        class="btn btn-lg btn-outline-primary">
       Посмотреть результаты голосования

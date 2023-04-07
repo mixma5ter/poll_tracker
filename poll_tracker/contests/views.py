@@ -43,7 +43,7 @@ class ContestsListView(ListView):
         self.tracks = None
 
     def get_queryset(self):
-        contests = Contest.objects.filter(is_active=True).order_by('-start_date')
+        contests = Contest.objects.filter(visible=True).order_by('-start_date')
         self.judge = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         self.tracks = Track.objects.filter(judges=self.judge)
         return contests
@@ -161,6 +161,7 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         'title': title,
         'description': description,
         'button_text': button_text,
+        'contest': contest,
         'stage': stage.title,
         'criterias': criterias,
         'contestants': contestants,
