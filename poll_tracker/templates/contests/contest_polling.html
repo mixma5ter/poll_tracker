@@ -6,21 +6,48 @@
 {% block content %}
 
 <div class="container py-4">
-  <h1 class="text-center">Страница голосования</h1>
+  <h1 class="text-center">{{ title }}</h1>
+  <br>
+  <h5 class="text-center">{{ description | linebreaksbr }}</h5>
 </div>
 
-<div class="d-grid gap-2 col-6 mx-auto">
-  <form class="form-horizontal" id="form-container" method="POST">
-    {% csrf_token %}
-    {{ formset.management_form }}
-    {% for form in formset %}
-    <div class="">
-    {{ form.as_table }}
-    </div>
-    {% endfor %}
-    <button class="btn btn-lg btn-outline-primary" type="submit">Оценить</button>
-    <div class="p-4"></div><!-- отступ -->
-  </form>
-</div>
+<form class="container py-4" id="form-container" method="POST">
+  {% csrf_token %}
+  {{ formset.management_form }}
+
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead class="table-primary">
+        <tr>
+          <th></th>
+          {% for criteria in criterias %}
+          <th>{{ criteria }}</th>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for contestant in contestants %}
+        <tr>
+          <th class="f-col" scope="col">{{ contestant }}</th>
+          {% for criteria in criterias %}
+            {% for form in formset %}
+              {{ form.score.errors.as_ul }}
+              {% if form.instance.criteria == criteria and form.instance.contestant == contestant %}
+                <input type="hidden" name="{{ form.prefix }}-id" value="{{ form.instance.id }}"><!--обязательное поле id-->
+                <td>{{ form.score.errors }} {{ form.score }}</td>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <!-- Submit button -->
+  <div class="d-grid gap-2 col-6 mx-auto">
+    <button class="btn btn-lg btn-outline-primary" type="submit">{{ button_text }}</button>
+  </div>
+  <div class="p-4"></div>
+</form>
 
 {% endblock %}

@@ -1,14 +1,17 @@
+from django.db.models import Count, Sum
 from django.forms import modelformset_factory
 from django.http import Http404
-from django.shortcuts import render, redirect
+from django.shortcuts import render
+from django.views import View
 from django.views.generic import DetailView, ListView
 
-from contests.models import Contest, Track
+from contests.models import Contest, Stage, Track
 from scores.models import Score
+from scores.tables import ResultTable
 from users.models import Judge
 
 
-def index(request):
+class IndexView(View):
     """Главная страница с регистрацией."""
 
     template_name = 'contests/index.html'
@@ -16,24 +19,22 @@ def index(request):
     description = 'Для участия в конкурсе необходимо зарегистрироваться в качестве судьи.\n\n' \
                   'Для этого выберете своё имя из списка ниже.'
     button_text = 'Выберете своё имя'
-    breadcrumbs = [['', 'Главная']]
 
-    contests = Contest.objects.filter(is_active=True)
-    tracks = Track.objects.filter(contest__in=contests)
-    judges = Judge.objects.filter(tracks__in=tracks)
+    def get(self, request):
+        contests = Contest.objects.filter(is_active=True)
+        tracks = Track.objects.filter(contest__in=contests)
+        judges = Judge.objects.filter(tracks__in=tracks).distinct()
+        if not judges:
+            raise Http404
 
-    context = {
-        'title': title,
-        'description': description,
-        'button_text': button_text,
-        'judges': judges,
-        'breadcrumbs': breadcrumbs,
-    }
+        context = {
+            'title': self.title,
+            'description': self.description,
+            'button_text': self.button_text,
+            'judges': judges,
+        }
 
-    if len(judges) > 0:
-        return render(request, template_name, context)
-
-    return redirect('contests/error/')
+        return render(request, self.template_name, context)
 
 
 class ContestsListView(ListView):
@@ -110,30 +111,40 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
     """Страница голосования."""
 
     title = 'Голосование'
+    description = 'Проголосуйте за участника, затем нажмите "Подтвердить выбор"'
+    button_text = 'Подтвердить выбор'
     template_name = 'contests/contest_polling.html'
 
     contest = Contest.objects.get(pk=contest_pk)
     track = Track.objects.get(pk=track_pk)
+    stage = Stage.objects.get(pk=stage_pk)
+    contestants = track.contestants.select_related()
+    criterias = stage.criterias.select_related()
     data = contest.scores.all().filter(
+        judge__slug=judge_slug).filter(
         track__pk=track_pk).filter(
         stage__pk=stage_pk).filter(
-        judge__slug=judge_slug)
+        contestant__in=contestants).filter(
+        criteria__in=criterias)
 
     ScoreFormset = modelformset_factory(
         Score,
-        fields=('score',),
-        extra=0
+        fields=(
+            'id',
+            'score',
+        ),
+        extra=0,
     )
 
     if request.method == 'POST':
         formset = ScoreFormset(request.POST, queryset=data)
         if formset.is_valid():
-            instances = formset.save()
-            for instance in instances:
-                instance.contest_id = contest_pk
-                instance.track_id = track_pk
-                instance.stage_id = stage_pk
-                instance.save()
+            for form in formset:
+                score = form.save(commit=False)
+                score.contest_id = contest_pk
+                score.track_id = track_pk
+                score.stage_id = stage_pk
+                score.save()
     else:
         formset = ScoreFormset(queryset=data)
 
@@ -142,11 +153,16 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         [f'/contests/{judge_slug}/', 'Конкурсы'],
         [f'/contests/{judge_slug}/{contest_pk}', contest],
         [f'/contests/{judge_slug}/{contest_pk}/{track_pk}', track],
-        ['', f'Голосование'],
+        ['', f'{stage.title}'],
     ]
 
     context = {
         'title': title,
+        'description': description,
+        'button_text': button_text,
+        'stage': stage.title,
+        'criterias': criterias,
+        'contestants': contestants,
         'formset': formset,
         'judge_name': Judge.objects.get(slug=judge_slug),
         'breadcrumbs': breadcrumbs,
@@ -155,23 +171,34 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
     if len(formset) > 0:
         return render(request, template_name, context)
 
-    raise Http404()
+    raise Http404
 
 
-class ContestResultView(DetailView):
-    """Страница конкурса с описанием."""
+def results_view(request, judge_slug: str, contest_pk: int):
+    """Страница результатов конкурса."""
 
-    model = Contest
-    template_name = 'contests/contest_result.html'
-    context_object_name = 'contest'
-    pk_url_kwarg = 'contest_pk'
+    title = 'Результаты'
+    template_name = 'contests/contest_polling.html'
 
-    def get_context_data(self, *, object_list=None, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['title'] = 'Результаты голосования'
-        context['judge_slug'] = self.kwargs['judge_slug']
-        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
-        return context
+    contest = Contest.objects.get(pk=contest_pk)
+    data = contest.scores.values('contestant__name').annotate(Sum('score'))
+    table = ResultTable(data)
+
+    breadcrumbs = [
+        ['/', 'Главная'],
+        [f'/contests/{judge_slug}/', 'Конкурсы'],
+        [f'/contests/{judge_slug}/{contest_pk}', contest],
+        ['', f'Голосование'],
+    ]
+
+    context = {
+        'title': title,
+        'table': table,
+        'judge_name': Judge.objects.get(slug=judge_slug),
+        'breadcrumbs': breadcrumbs,
+    }
+
+    return render(request, template_name, context)
 
 
 def contest_error(request):

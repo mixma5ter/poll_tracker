@@ -8,11 +8,11 @@ from django.urls import include, path
 from django.views.generic import RedirectView
 from django.conf import settings
 
-from contests.views import index
+from contests.views import IndexView
 
 urlpatterns = [
     # Главная страница
-    path('', index, name='index'),
+    path('', IndexView.as_view(), name='index'),
     # Путь до страницы с конкурсами
     path('contests/', include('contests.urls', namespace='contests')),
     # Путь до админ-панели

@@ -87,7 +87,7 @@ class Score(CreatedModel):
         ordering = ('-pub_date',)
         constraints = [
             models.UniqueConstraint(
-                fields=['contest', 'track', 'stage', 'criteria', 'judge', 'contestant'],
+                fields=['contest', 'track', 'stage', 'criteria', 'judge', 'contestant', 'score'],
                 name='unique_score_model'
             )
         ]

@@ -1,10 +1,10 @@
-from django.urls import path, include
+from django.urls import path
 from . import views
 from .views import (ContestDetailView,
                     ContestsListView,
-                    ContestResultView,
                     ContestStageView,
-                    add_score_view)
+                    add_score_view,
+                    results_view)
 
 app_name = 'contests'  # namespace
 
@@ -17,7 +17,7 @@ urlpatterns = [
     path('<slug:judge_slug>/<int:contest_pk>/', ContestDetailView.as_view(), name='contest_detail'),
 
     # Результаты конкурса (таблица результатов, выбор действий)
-    path('<slug:judge_slug>/<int:contest_pk>/result/', ContestResultView.as_view(), name='contest_result'),
+    path('<slug:judge_slug>/<int:contest_pk>/result/', results_view, name='contest_result'),
 
     # Страница выбора этапа конкурса
     path('<slug:judge_slug>/<int:contest_pk>/<int:track_pk>/', ContestStageView.as_view(), name='contest_stage'),
