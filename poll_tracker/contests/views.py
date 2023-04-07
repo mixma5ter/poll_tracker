@@ -46,7 +46,7 @@ class ContestsListView(ListView):
         contests = Contest.objects.filter(is_active=True).order_by('-start_date')
         self.judge = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         self.tracks = Track.objects.filter(judges=self.judge)
-        return contests.filter(tracks__in=self.tracks)
+        return contests
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
