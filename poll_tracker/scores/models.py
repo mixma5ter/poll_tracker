@@ -12,6 +12,7 @@ class Score(CreatedModel):
     )
     contest = models.ForeignKey(
         'contests.Contest',
+        db_index=True,
         on_delete=models.CASCADE,
         related_name='scores',
         verbose_name='Конкурс',
@@ -19,6 +20,7 @@ class Score(CreatedModel):
     )
     track = ChainedForeignKey(
         'contests.Track',
+        db_index=True,
         chained_field='contest',
         chained_model_field='contest',
         show_all=False,
@@ -29,6 +31,7 @@ class Score(CreatedModel):
     )
     stage = ChainedForeignKey(
         'contests.Stage',
+        db_index=True,
         chained_field='contest',
         chained_model_field='contest',
         show_all=False,
@@ -39,6 +42,7 @@ class Score(CreatedModel):
     )
     criteria = ChainedForeignKey(
         'contests.Criteria',
+        db_index=True,
         chained_field='stage',
         chained_model_field='stages',
         show_all=False,
@@ -49,6 +53,7 @@ class Score(CreatedModel):
     )
     judge = ChainedForeignKey(
         'users.Judge',
+        db_index=True,
         chained_field='track',
         chained_model_field='tracks',
         show_all=False,
@@ -59,6 +64,7 @@ class Score(CreatedModel):
     )
     contestant = ChainedForeignKey(
         'users.Contestant',
+        db_index=True,
         chained_field='track',
         chained_model_field='tracks',
         show_all=False,
@@ -69,6 +75,7 @@ class Score(CreatedModel):
     )
     score = models.SmallIntegerField(
         default=0,
+        db_index=True,
         verbose_name='Оценка',
         help_text='Выберите оценку',
     )

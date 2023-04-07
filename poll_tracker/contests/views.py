@@ -1,13 +1,11 @@
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.forms import modelformset_factory
-from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.views import View
 from django.views.generic import DetailView, ListView
 
 from contests.models import Contest, Stage, Track
 from scores.models import Score
-from scores.tables import ResultTable
 from users.models import Judge
 
 
@@ -24,16 +22,12 @@ class IndexView(View):
         contests = Contest.objects.filter(is_active=True)
         tracks = Track.objects.filter(contest__in=contests)
         judges = Judge.objects.filter(tracks__in=tracks).distinct()
-        if not judges:
-            raise Http404
-
         context = {
             'title': self.title,
             'description': self.description,
             'button_text': self.button_text,
             'judges': judges,
         }
-
         return render(request, self.template_name, context)
 
 
@@ -43,15 +37,22 @@ class ContestsListView(ListView):
     template_name = 'contests/contest_list.html'
     context_object_name = 'contests'
 
+    def __init__(self):
+        super().__init__()
+        self.judge = None
+        self.tracks = None
+
     def get_queryset(self):
-        contests = Contest.objects.filter(is_active=True)
-        return contests.order_by('-start_date')
+        contests = Contest.objects.filter(is_active=True).order_by('-start_date')
+        self.judge = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
+        self.tracks = Track.objects.filter(judges=self.judge)
+        return contests.filter(tracks__in=self.tracks)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Конкурсы'
         context['judge_slug'] = self.kwargs['judge_slug']
-        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['judge_name'] = self.judge
         context['breadcrumbs'] = [
             ['/', 'Главная'],
             ['', 'Конкурсы'],
@@ -69,13 +70,14 @@ class ContestDetailView(DetailView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
+        judge_slug = self.kwargs['judge_slug']
         context['title'] = 'Описание конкурса'
-        context['judge_slug'] = self.kwargs['judge_slug']
-        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['judge_slug'] = judge_slug
+        context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['tracks'] = self.get_object().tracks.all().order_by('pub_date')
         context['breadcrumbs'] = [
             ['/', 'Главная'],
-            [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
+            [f'/contests/{judge_slug}/', 'Конкурсы'],
             ['', f'{self.get_object()}'],
         ]
         return context
@@ -92,11 +94,11 @@ class ContestStageView(DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Этапы конкурса'
-        track = Track.objects.get(pk=self.kwargs['track_pk'])
+        track = get_object_or_404(self.get_object().tracks.all(), pk=self.kwargs['track_pk'])
         context['track'] = track
         context['stages'] = self.get_object().stages.all()
         context['judge_slug'] = self.kwargs['judge_slug']
-        context['judge_name'] = Judge.objects.get(slug=self.kwargs['judge_slug'])
+        context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['breadcrumbs'] = [
             ['/', 'Главная'],
             [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
@@ -115,24 +117,23 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
     button_text = 'Подтвердить выбор'
     template_name = 'contests/contest_polling.html'
 
-    contest = Contest.objects.get(pk=contest_pk)
-    track = Track.objects.get(pk=track_pk)
-    stage = Stage.objects.get(pk=stage_pk)
-    contestants = track.contestants.select_related()
-    criterias = stage.criterias.select_related()
-    data = contest.scores.all().filter(
-        judge__slug=judge_slug).filter(
-        track__pk=track_pk).filter(
-        stage__pk=stage_pk).filter(
-        contestant__in=contestants).filter(
-        criteria__in=criterias)
+    contest = get_object_or_404(Contest, pk=contest_pk)
+    track = get_object_or_404(Track.objects.select_related('contest'), pk=track_pk, contest=contest)
+    stage = get_object_or_404(Stage.objects.select_related('contest'), pk=stage_pk, contest=contest)
+    contestants = track.contestants.prefetch_related()
+    criterias = stage.criterias.all()
+
+    data = contest.scores.filter(
+        judge__slug=judge_slug,
+        track__pk=track_pk,
+        stage__pk=stage_pk,
+        contestant__in=contestants,
+        criteria__in=criterias
+    ).select_related()
 
     ScoreFormset = modelformset_factory(
         Score,
-        fields=(
-            'id',
-            'score',
-        ),
+        fields=('score',),
         extra=0,
     )
 
@@ -164,14 +165,11 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         'criterias': criterias,
         'contestants': contestants,
         'formset': formset,
-        'judge_name': Judge.objects.get(slug=judge_slug),
+        'judge_name': get_object_or_404(Judge, slug=judge_slug),
         'breadcrumbs': breadcrumbs,
     }
 
-    if len(formset) > 0:
-        return render(request, template_name, context)
-
-    raise Http404
+    return render(request, template_name, context)
 
 
 def results_view(request, judge_slug: str, contest_pk: int):
@@ -180,9 +178,9 @@ def results_view(request, judge_slug: str, contest_pk: int):
     title = 'Результаты'
     template_name = 'contests/contest_polling.html'
 
-    contest = Contest.objects.get(pk=contest_pk)
+    contest = get_object_or_404(Contest, pk=contest_pk)
     data = contest.scores.values('contestant__name').annotate(Sum('score'))
-    table = ResultTable(data)
+    # table = ResultTable(data)
 
     breadcrumbs = [
         ['/', 'Главная'],
@@ -193,16 +191,9 @@ def results_view(request, judge_slug: str, contest_pk: int):
 
     context = {
         'title': title,
-        'table': table,
-        'judge_name': Judge.objects.get(slug=judge_slug),
+        # 'table': table,
+        'judge_name': get_object_or_404(Judge, slug=judge_slug),
         'breadcrumbs': breadcrumbs,
     }
 
     return render(request, template_name, context)
-
-
-def contest_error(request):
-    """Страница ошибки если нет доступных конкурсов."""
-
-    template = 'contests/contest_is_not_active.html'
-    return render(request, template)
