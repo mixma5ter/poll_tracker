@@ -47,17 +47,18 @@ class Command(BaseCommand):
 
         for track in tracks:
             for stage in stages:
-                for contestant in track.contestants.all():
-                    for judge in track.judges.all():
-                        for criteria in stage.criterias.all():
-                            Score.objects.get_or_create(
-                                contest=contest,
-                                track=track,
-                                stage=stage,
-                                criteria=criteria,
-                                judge=judge,
-                                contestant=contestant,
-                            )
+                if stage.is_judged:
+                    for contestant in track.contestants.all():
+                        for judge in track.judges.all():
+                            for criteria in stage.criterias.all():
+                                Score.objects.get_or_create(
+                                    contest=contest,
+                                    track=track,
+                                    stage=stage,
+                                    criteria=criteria,
+                                    judge=judge,
+                                    contestant=contestant,
+                                )
 
         message = f'\nОценки загружены'
 

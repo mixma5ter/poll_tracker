@@ -164,7 +164,7 @@ class ScoreAdmin(MyAdmin):
     list_editable = ('score',)
     search_fields = ('contest__title', 'track__title', 'stage__title',
                      'criteria__title', 'judge__name', 'contestant__name',)
-    list_filter = ('pub_date', 'update_date',)
+    list_filter = ('pub_date', 'update_date', 'contest',)
 
 
 admin.site.register(Contest, ContestAdmin)

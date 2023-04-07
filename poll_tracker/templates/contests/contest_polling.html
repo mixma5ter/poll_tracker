@@ -43,14 +43,14 @@
       </tbody>
     </table>
   </div>
-  <!-- Submit button -->
-  {% if contest.is_active %}
+  <!-- если конкурс активен и оценивается судьями отображаем кнопку голосования -->
+  {% if contest.is_active and stage.is_judged %}
+    <div class="p-2"></div><!-- отступ -->
     <div class="d-grid gap-2 col-6 mx-auto">
-      <button class="btn btn-lg btn-outline-primary"
-              type="submit">{{ button_text }}</button>
+      <button class="btn btn-lg btn-outline-primary" type="submit">{{ button_text }}</button>
     </div>
   {% endif %}
-  <div class="p-4"></div>
+  <div class="p-4"></div><!-- отступ -->
 </form>
 
 {% endblock %}

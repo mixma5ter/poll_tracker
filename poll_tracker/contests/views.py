@@ -162,7 +162,7 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         'description': description,
         'button_text': button_text,
         'contest': contest,
-        'stage': stage.title,
+        'stage': stage,
         'criterias': criterias,
         'contestants': contestants,
         'formset': formset,
