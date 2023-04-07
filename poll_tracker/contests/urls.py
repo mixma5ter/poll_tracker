@@ -1,5 +1,4 @@
 from django.urls import path
-from . import views
 from .views import (ContestDetailView,
                     ContestsListView,
                     ContestStageView,
@@ -24,7 +23,4 @@ urlpatterns = [
 
     # Страница голосования
     path('<slug:judge_slug>/<int:contest_pk>/<int:track_pk>/<int:stage_pk>/', add_score_view, name='contest_polling'),
-
-    # Страница ошибки
-    path('error/', views.contest_error, name='contest_error'),
 ]
