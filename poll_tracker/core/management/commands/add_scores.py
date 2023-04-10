@@ -12,37 +12,40 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'contest_id',
-            type=int,
+            '--contest-id',
+            dest='contest_id',
             help='id конкурса для которого создаются оценки'
         )
 
     def handle(self, *args, **options):
-
         contest_id = options['contest_id']
-        try:
-            contest = Contest.objects.get(pk=contest_id)
-        except Contest.DoesNotExist:
-            message = f'Конкурс с id = {contest_id} не существует.'
+        if contest_id:
+            try:
+                contest = Contest.objects.get(pk=contest_id)
+            except Contest.DoesNotExist:
+                message = f'Конкурс с id = {contest_id} не существует.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            tracks = Track.objects.filter(contest=contest).prefetch_related('contestants')
+            if not tracks:
+                message = f'Не созданы потоки для конкурса {contest.title}.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
+            if not stages:
+                message = f'Не созданы этапы для конкурса {contest.title}.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            message = self.create_scores(contest, tracks, stages)
+            return message
+        else:
+            message = 'Добавьте атрибут id-конкурса в вызов команды.'
             self.stdout.write(self.style.WARNING(message))
-            sys.exit()
+            return message
 
-        tracks = Track.objects.filter(contest=contest).prefetch_related('contestants')
-        if not tracks:
-            message = f'Не созданы потоки для конкурса {contest.title}.'
-            self.stdout.write(self.style.WARNING(message))
-            sys.exit()
-
-        stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
-        if not stages:
-            message = f'Не созданы этапы для конкурса {contest.title}.'
-            self.stdout.write(self.style.WARNING(message))
-            sys.exit()
-
+    def create_scores(self, contest, tracks, stages):
         contestants = Contestant.objects.filter(tracks__in=tracks)
         judges = Judge.objects.filter(tracks__in=tracks)
-
-        # criterias = Criteria.objects.filter(stages__in=stages)
         criterias = Criteria.objects.filter(stages__in=stages).select_related()
 
         for track in tracks:
@@ -60,6 +63,6 @@ class Command(BaseCommand):
                                     contestant=contestant,
                                 )
 
-        message = f'\nОценки загружены'
-
+        message = f'Оценки добавлены для конкурса {contest.title}.'
         self.stdout.write(self.style.SUCCESS(message))
+        return message

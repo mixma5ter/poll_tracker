@@ -12,45 +12,43 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            'contest_id',
-            type=int,
-            help='id конкурса для которого создаются оценки'
+            '--contest-id',
+            dest='contest_id',
+            help='id конкурса для которого сбрасываются оценки'
         )
 
     def handle(self, *args, **options):
-
         contest_id = options['contest_id']
-        try:
-            contest = Contest.objects.get(pk=contest_id)
-        except Contest.DoesNotExist:
-            message = f'Конкурс с id = {contest_id} не существует.'
-            self.stdout.write(self.style.WARNING(message))
-            sys.exit()
+        if contest_id:
+            try:
+                contest = Contest.objects.get(pk=contest_id)
+            except Contest.DoesNotExist:
+                message = f'Конкурс с id = {contest_id} не существует.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
+            if not stages:
+                message = f'Не созданы этапы для конкурса {contest.title}.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            criterias = Criteria.objects.filter(stages__in=stages).select_related()
+            if not criterias:
+                message = f'Не созданы критерии конкурса {contest.title}.'
+                self.stdout.write(self.style.WARNING(message))
+                return message
+            message = self.set_default(contest, criterias)
+            return message
+        else:
+            message = 'Добавьте атрибут id-конкурса в вызов команды.'
+            return message
 
-        tracks = Track.objects.filter(contest=contest).prefetch_related('contestants')
-        if not tracks:
-            message = f'Не созданы потоки для конкурса {contest.title}.'
-            self.stdout.write(self.style.WARNING(message))
-            sys.exit()
-
-        stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
-        if not stages:
-            message = f'Не созданы этапы для конкурса {contest.title}.'
-            self.stdout.write(self.style.WARNING(message))
-            sys.exit()
-
-        contestants = Contestant.objects.filter(tracks__in=tracks)
-        judges = Judge.objects.filter(tracks__in=tracks)
-
-        # criterias = Criteria.objects.filter(stages__in=stages)
-        criterias = Criteria.objects.filter(stages__in=stages).select_related()
-
+    def set_default(self, contest, criterias):
         scores = Score.objects.filter(contest=contest)
         for score in scores:
             if score.score != score.criteria.min_score:
                 score.score = score.criteria.min_score
                 score.save()
 
-        message = f'\nОценки обнулены'
-
+        message = f'Оценки обнулены для конкурса {contest.title}'
         self.stdout.write(self.style.SUCCESS(message))
+        return message

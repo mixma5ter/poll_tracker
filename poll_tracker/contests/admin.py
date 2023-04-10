@@ -1,7 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.management import call_command
 from django.utils.safestring import mark_safe
 
 from contests.models import Contest, Criteria, Stage, Track
+from core.management.commands.add_scores import Command as AddScoresCommand
+from core.management.commands.set_default import Command as SetDefaultScoresCommand
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -35,6 +38,25 @@ class ContestAdmin(MyAdmin):
     list_editable = ('visible', 'is_active',)
     search_fields = ('title', 'description', 'start_date',)
     list_filter = ('start_date', 'pub_date', 'update_date', 'visible', 'is_active',)
+    actions = ['add_scores', 'set_default']
+
+    @admin.action(description='Добавить оценки')
+    def add_scores(self, request, queryset):
+        for contest in queryset:
+            message = call_command(AddScoresCommand(), contest_id=contest.pk)
+            if message.startswith('Оценки добавлены'):
+                self.message_user(request, message=message, level=messages.SUCCESS)
+            else:
+                self.message_user(request, message=message, level=messages.ERROR)
+
+    @admin.action(description='Обнулить оценки')
+    def set_default(self, request, queryset):
+        for contest in queryset:
+            message = call_command(SetDefaultScoresCommand(), contest_id=contest.pk)
+            if message.startswith('Оценки обнулены'):
+                self.message_user(request, message=message, level=messages.SUCCESS)
+            else:
+                self.message_user(request, message=message, level=messages.ERROR)
 
 
 class TrackAdmin(MyAdmin):
