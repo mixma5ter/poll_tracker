@@ -142,14 +142,18 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
 
     if request.method == 'POST':
         formset = ScoreFormset(request.POST, queryset=data)
-        if formset.is_valid():
-            for form in formset:
-                score = form.save(commit=False)
-                score.contest_id = contest_pk
-                score.track_id = track_pk
-                score.stage_id = stage_pk
-                score.save()
-            messages.success(request, 'Оценки успешно сохранены')
+        if contest.is_active:
+            if formset.is_valid():
+                for form in formset:
+                    score = form.save(commit=False)
+                    score.contest_id = contest_pk
+                    score.track_id = track_pk
+                    score.stage_id = stage_pk
+                    score.save()
+                messages.success(request, 'Оценки успешно сохранены')
+                return redirect(request.path)
+        else:
+            messages.success(request, 'Голосование закончилось')
             return redirect(request.path)
     else:
         formset = ScoreFormset(queryset=data)
