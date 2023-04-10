@@ -1,9 +1,11 @@
-from django.db.models import Count, Sum, Q
+from django.contrib import messages
+from django.db.models import Sum
 from django.forms import modelformset_factory
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import DetailView, ListView
 
+from contests.forms import ScoreForm
 from contests.models import Contest, Stage, Track
 from scores.models import Score
 from users.models import Judge
@@ -133,6 +135,7 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
 
     ScoreFormset = modelformset_factory(
         Score,
+        form=ScoreForm,
         fields=('score',),
         extra=0,
     )
@@ -146,6 +149,8 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
                 score.track_id = track_pk
                 score.stage_id = stage_pk
                 score.save()
+            messages.success(request, 'Оценки успешно сохранены')
+            return redirect(request.path)
     else:
         formset = ScoreFormset(queryset=data)
 

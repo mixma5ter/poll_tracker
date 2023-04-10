@@ -11,6 +11,15 @@
   <h5 class="text-center">{{ description | linebreaksbr }}</h5>
 </div>
 
+{% if messages %}
+    <div class="text-center alert alert-{{ messages.tags }} alert-dismissible fade show" role="alert">
+      {% for message in messages %}
+          {{ message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      {% endfor %}
+    </div>
+{% endif %}
+
 <form class="container py-4" id="form-container" method="POST">
   {% csrf_token %}
   {{ formset.management_form }}
@@ -31,10 +40,9 @@
           <th class="f-col" scope="col">{{ contestant }}</th>
           {% for criteria in criterias %}
             {% for form in formset %}
-              {{ form.score.errors.as_ul }}
               {% if form.instance.criteria == criteria and form.instance.contestant == contestant %}
                 <input type="hidden" name="{{ form.prefix }}-id" value="{{ form.instance.id }}"><!--обязательное поле id-->
-                <td>{{ form.score.errors }} {{ form.score }}</td>
+                <td class="score-form">{{ form.score.errors }} {{ form.score }}</td>
               {% endif %}
             {% endfor %}
           {% endfor %}

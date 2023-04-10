@@ -210,6 +210,10 @@ class Criteria(CreatedModel):
         help_text='Максимальная оценка критерия',
     )
 
+    def score_choices(self):
+        """Генерируем выпадающий список для формы оценки."""
+        return [(i, str(i)) for i in range(self.min_score, self.max_score + 1)]
+
     def __str__(self):
         return self.title
 

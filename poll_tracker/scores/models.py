@@ -1,6 +1,7 @@
 from django.db import models
 from smart_selects.db_fields import ChainedForeignKey
 
+from contests.models import Criteria
 from core.models import CreatedModel
 
 
@@ -74,8 +75,9 @@ class Score(CreatedModel):
         help_text='Выберите команду',
     )
     score = models.SmallIntegerField(
-        default=0,
+        default=Criteria.objects.first().min_score,
         db_index=True,
+        choices=[(i, str(i)) for i in range(Criteria.objects.first().min_score, Criteria.objects.first().max_score + 1)],
         verbose_name='Оценка',
         help_text='Выберите оценку',
     )
