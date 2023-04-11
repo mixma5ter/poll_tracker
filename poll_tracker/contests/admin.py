@@ -20,6 +20,7 @@ class MyAdmin(admin.ModelAdmin):
         abstract = True
 
 
+@admin.register(Contest)
 class ContestAdmin(MyAdmin):
     """Регистрация модели конкурса в админке."""
 
@@ -59,6 +60,7 @@ class ContestAdmin(MyAdmin):
                 self.message_user(request, message=message, level=messages.ERROR)
 
 
+@admin.register(Track)
 class TrackAdmin(MyAdmin):
     """Регистрация модели потока в админке."""
 
@@ -71,6 +73,7 @@ class TrackAdmin(MyAdmin):
         'end_date',
         'contestants_list',
         'judges_list',
+        'order_index',
         'pub_date',
         'update_date',
     )
@@ -79,6 +82,7 @@ class TrackAdmin(MyAdmin):
     list_filter = ('start_date', 'pub_date', 'update_date',)
 
 
+@admin.register(Stage)
 class StageAdmin(MyAdmin):
     """Регистрация модели этапа в админке."""
 
@@ -89,14 +93,17 @@ class StageAdmin(MyAdmin):
         'description',
         'criterias_list',
         'is_judged',
+        'order_index',
         'pub_date',
         'update_date',
     )
     list_display_links = ('pk', 'title',)
+    list_editable = ('order_index',)
     search_fields = ('contest__title', 'title', 'description',)
     list_filter = ('pub_date', 'update_date',)
 
 
+@admin.register(Criteria)
 class CriteriaAdmin(MyAdmin):
     """Регистрация модели критерия в админке."""
 
@@ -106,14 +113,17 @@ class CriteriaAdmin(MyAdmin):
         'description',
         'min_score',
         'max_score',
+        'order_index',
         'pub_date',
         'update_date',
     )
     list_display_links = ('pk', 'title',)
+    list_editable = ('order_index',)
     search_fields = ('title',)
     list_filter = ('pub_date', 'update_date',)
 
 
+@admin.register(Contestant)
 class ContestantAdmin(MyAdmin):
     """Регистрация модели участника в админке."""
 
@@ -124,10 +134,12 @@ class ContestantAdmin(MyAdmin):
         'org_name',
         'description',
         'photo',
+        'order_index',
         'pub_date',
         'update_date',
     )
     list_display_links = ('pk', 'name',)
+    list_editable = ('order_index',)
     search_fields = ('name', 'org_name', 'description')
     list_filter = ('pub_date', 'update_date',)
     fields = ('name', 'org_name', 'description', 'photo', 'get_html_photo',)
@@ -139,6 +151,7 @@ class ContestantAdmin(MyAdmin):
     get_html_photo.short_description = 'Миниатюра'
 
 
+@admin.register(Judge)
 class JudgeAdmin(MyAdmin):
     """Регистрация модели судьи в админке."""
 
@@ -167,6 +180,7 @@ class JudgeAdmin(MyAdmin):
     get_html_photo.short_description = 'Миниатюра'
 
 
+@admin.register(Score)
 class ScoreAdmin(MyAdmin):
     """Регистрация модели оценки в админке."""
 
@@ -188,14 +202,6 @@ class ScoreAdmin(MyAdmin):
                      'criteria__title', 'judge__name', 'contestant__name',)
     list_filter = ('pub_date', 'update_date', 'contest',)
 
-
-admin.site.register(Contest, ContestAdmin)
-admin.site.register(Track, TrackAdmin)
-admin.site.register(Stage, StageAdmin)
-admin.site.register(Criteria, CriteriaAdmin)
-admin.site.register(Contestant, ContestantAdmin)
-admin.site.register(Judge, JudgeAdmin)
-admin.site.register(Score, ScoreAdmin)
 
 admin.site.site_title = 'Poll Tracker'
 admin.site.site_header = 'Poll Tracker Admin'

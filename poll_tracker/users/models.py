@@ -30,6 +30,11 @@ class Contestant(CreatedModel):
         verbose_name='Логотип',
         help_text='Добавьте логотип',
     )
+    order_index = models.SmallIntegerField(
+        default=1,
+        verbose_name='Индекс',
+        help_text='Порядковый индекс',
+    )
 
     def full_name(self):
         return '{}'.format(' - '.join(str(item) for item in [self.name, self.org_name] if item))

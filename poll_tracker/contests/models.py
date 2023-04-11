@@ -1,5 +1,4 @@
 from django.db import models
-from django.urls import reverse
 
 from core.models import CreatedModel
 
@@ -102,6 +101,11 @@ class Track(CreatedModel):
         verbose_name='Дата окончания',
         help_text='Выберите дату окончания потока',
     )
+    order_index = models.SmallIntegerField(
+        default=1,
+        verbose_name='Индекс',
+        help_text='Порядковый индекс',
+    )
 
     def contestants_list(self):
         return '{}'.format(', '.join([contestant.name for contestant in self.contestants.all()]))
@@ -162,6 +166,11 @@ class Stage(CreatedModel):
         verbose_name='Оценивается судьями',
         help_text='Установите флажок если этап оценивается судьями',
     )
+    order_index = models.SmallIntegerField(
+        default=1,
+        verbose_name='Индекс',
+        help_text='Порядковый индекс',
+    )
 
     def criterias_list(self):
         return '{}'.format(', '.join([criteria.title for criteria in self.criterias.all()]))
@@ -209,10 +218,16 @@ class Criteria(CreatedModel):
         verbose_name='Максимальная оценка',
         help_text='Максимальная оценка критерия',
     )
-
-    def score_choices(self):
-        """Генерируем выпадающий список для формы оценки."""
-        return [(i, str(i)) for i in range(self.min_score, self.max_score + 1)]
+    # score_step = models.SmallIntegerField(
+    #     default=1,
+    #     verbose_name='Максимальная оценка',
+    #     help_text='Максимальная оценка критерия',
+    # )
+    order_index = models.SmallIntegerField(
+        default=1,
+        verbose_name='Порядковый индекс',
+        help_text='Порядковый индекс',
+    )
 
     def __str__(self):
         return self.title

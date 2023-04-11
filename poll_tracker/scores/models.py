@@ -75,9 +75,8 @@ class Score(CreatedModel):
         help_text='Выберите команду',
     )
     score = models.SmallIntegerField(
-        default=Criteria.objects.first().min_score,
+        default=0,
         db_index=True,
-        choices=[(i, str(i)) for i in range(Criteria.objects.first().min_score, Criteria.objects.first().max_score + 1)],
         verbose_name='Оценка',
         help_text='Выберите оценку',
     )
