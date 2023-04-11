@@ -5,7 +5,6 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import DetailView, ListView
 
-from contests.forms import ScoreForm
 from contests.models import Contest, Stage, Track
 from scores.models import Score
 from users.models import Judge
@@ -76,7 +75,7 @@ class ContestDetailView(DetailView):
         context['title'] = 'Описание конкурса'
         context['judge_slug'] = judge_slug
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
-        context['tracks'] = self.get_object().tracks.all().order_by('pub_date')
+        context['tracks'] = self.get_object().tracks.all().order_by('order_index')
         context['breadcrumbs'] = [
             ['/', 'Главная'],
             [f'/contests/{judge_slug}/', 'Конкурсы'],
@@ -98,7 +97,7 @@ class ContestStageView(DetailView):
         context['title'] = 'Этапы конкурса'
         track = get_object_or_404(self.get_object().tracks.all(), pk=self.kwargs['track_pk'])
         context['track'] = track
-        context['stages'] = self.get_object().stages.all()
+        context['stages'] = self.get_object().stages.all().order_by('order_index')
         context['judge_slug'] = self.kwargs['judge_slug']
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['breadcrumbs'] = [
@@ -122,8 +121,8 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
     contest = get_object_or_404(Contest, pk=contest_pk)
     track = get_object_or_404(Track.objects.select_related('contest'), pk=track_pk, contest=contest)
     stage = get_object_or_404(Stage.objects.select_related('contest'), pk=stage_pk, contest=contest)
-    contestants = track.contestants.prefetch_related()
-    criterias = stage.criterias.all()
+    contestants = track.contestants.prefetch_related().order_by('order_index')
+    criterias = stage.criterias.all().order_by('order_index')
 
     data = contest.scores.filter(
         judge__slug=judge_slug,
@@ -135,7 +134,6 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
 
     ScoreFormset = modelformset_factory(
         Score,
-        form=ScoreForm,
         fields=('score',),
         extra=0,
     )
@@ -144,16 +142,27 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         formset = ScoreFormset(request.POST, queryset=data)
         if contest.is_active:
             if formset.is_valid():
+                check_form = True
                 for form in formset:
-                    score = form.save(commit=False)
+                    # score = form.save(commit=False)
+                    score = form.instance
                     score.contest_id = contest_pk
                     score.track_id = track_pk
                     score.stage_id = stage_pk
+                    # добавляем проверку на правильность оценки в соответствии с критерием
+                    criteria = score.criteria
+                    score_range = list(range(int(criteria.min_score), int(criteria.max_score) + 1))
+                    if score.score not in score_range:
+                        messages.error(request, f'Оценка за {criteria} должна быть в диапазоне '
+                                                f'от {criteria.min_score} до {criteria.max_score}')
+                        check_form = False
+                        continue
                     score.save()
-                messages.success(request, 'Оценки успешно сохранены')
+                if check_form:
+                    messages.success(request, 'Оценки успешно сохранены')
                 return redirect(request.path)
         else:
-            messages.success(request, 'Голосование закончилось')
+            messages.error(request, 'Голосование закончилось')
             return redirect(request.path)
     else:
         formset = ScoreFormset(queryset=data)

@@ -9,8 +9,3 @@ class ScoreForm(forms.ModelForm):
     class Meta:
         model = Score
         fields = ['criteria', 'score']
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        criteria = self.instance.criteria
-        self.fields['score'].choices = criteria.score_choices()
