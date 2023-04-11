@@ -1,6 +1,8 @@
 <!-- templates/contests/contest_stage.html -->
 {% extends 'base.html' %}
 
+{% load user_filters %}
+
 {% block title %}{{ title }}{% endblock %}
 
 {% block content %}
@@ -42,7 +44,9 @@
             {% for form in formset %}
               {% if form.instance.criteria == criteria and form.instance.contestant == contestant %}
                 <input type="hidden" name="{{ form.prefix }}-id" value="{{ form.instance.id }}"><!--обязательное поле id-->
-                <td class="score-form">{{ form.score.errors }} {{ form.score }}</td>
+                <td class="score-form">
+                  {{ form.score.errors }} {{ form.score|add_score_range:criteria }}
+                </td>
               {% endif %}
             {% endfor %}
           {% endfor %}
