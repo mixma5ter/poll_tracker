@@ -34,10 +34,10 @@
       {% endfor %}
     {% endif %}
 
-    <!-- если конкурс видим и не активен, отображаем кнопку результатов -->
-    {% if contest.visible and not contest.is_active %}
+    <!-- если конкурс видим, отображаем кнопку результатов -->
+    {% if contest.visible %}
     <a href="{% url 'contests:contest_result' judge_slug contest.pk %}"
-       class="btn btn-lg btn-outline-primary">
+       class="btn btn-lg btn-outline-dark">
       Посмотреть результаты голосования
     </a>
     {% endif %}

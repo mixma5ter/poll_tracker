@@ -44,6 +44,7 @@ INSTALLED_APPS = [
 
     'debug_toolbar',  # Регистрация приложения DjDT
     'smart_selects',  # Регистрация приложения smart_selects для админки
+    'django_tables2',  # Регистрация приложения django_tables2 для таблиц
 ]
 
 MIDDLEWARE = [

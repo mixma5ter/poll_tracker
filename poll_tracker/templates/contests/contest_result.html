@@ -1,5 +1,7 @@
-<!-- templates/includes/contest_result.html -->
+<!-- templates/contests/contest_result.html -->
 {% extends 'base.html' %}
+
+{% load render_table from django_tables2 %}
 
 {% block title %}{{ title }}{% endblock %}
 
@@ -10,6 +12,11 @@
   <br>
   <h3 class="text-center">{{ title }}</h3>
 </div>
+
+<div class="d-grid gap-2 col-6 mx-auto">
+  {% render_table table %}
+</div>
+
 <div class="p-2"></div><!-- отступ -->
 
 {% endblock %}

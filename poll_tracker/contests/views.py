@@ -7,7 +7,8 @@ from django.views.generic import DetailView, ListView
 
 from contests.models import Contest, Stage, Track
 from scores.models import Score
-from users.models import Judge
+from scores.table import ResultTable
+from users.models import Judge, Contestant
 
 
 class IndexView(View):
@@ -144,7 +145,6 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
             if formset.is_valid():
                 check_form = True
                 for form in formset:
-                    # score = form.save(commit=False)
                     score = form.instance
                     score.contest_id = contest_pk
                     score.track_id = track_pk
@@ -195,22 +195,24 @@ def results_view(request, judge_slug: str, contest_pk: int):
     """Страница результатов конкурса."""
 
     title = 'Результаты'
-    template_name = 'contests/contest_polling.html'
+    template_name = 'contests/contest_result.html'
 
     contest = get_object_or_404(Contest, pk=contest_pk)
-    data = contest.scores.values('contestant__name').annotate(Sum('score'))
-    # table = ResultTable(data)
+    data = contest.scores.values('contestant__name', 'contestant__org_name').annotate(Sum('score')).order_by('contestant')
+    ordered_data = data.order_by('-score__sum')
+    table = ResultTable(ordered_data)
 
     breadcrumbs = [
         ['/', 'Главная'],
         [f'/contests/{judge_slug}/', 'Конкурсы'],
         [f'/contests/{judge_slug}/{contest_pk}', contest],
-        ['', f'Голосование'],
+        ['', f'Результаты'],
     ]
 
     context = {
         'title': title,
-        # 'table': table,
+        'contest': contest,
+        'table': table,
         'judge_name': get_object_or_404(Judge, slug=judge_slug),
         'breadcrumbs': breadcrumbs,
     }
