@@ -11,15 +11,17 @@ from django.conf import settings
 from contests.views import IndexView
 
 urlpatterns = [
-    # Главная страница
+    # главная страница
     path('', IndexView.as_view(), name='index'),
-    # Путь до страницы с конкурсами
+    # конкурсы
     path('contests/', include('contests.urls', namespace='contests')),
-    # Путь до админ-панели
+    # api
+    path('api/', include('api.urls', namespace='api')),
+    # админ-панель
     path('admin/', admin.site.urls),
-    # Путь для smart_selects
+    # smart_selects
     path('chaining/', include('smart_selects.urls')),
-    # Путь до иконки админ панели
+    # иконка админ панели
     path('favicon.ico', RedirectView.as_view(url=staticfiles_storage.url('img/favicon.ico')))
 ]
 
