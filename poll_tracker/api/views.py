@@ -7,7 +7,7 @@ from contests.models import Contest
 
 
 class ContestResultJson(viewsets.ModelViewSet):
-    """Модель отправки данных в VMix."""
+    """Отправка данных в VMix."""
 
     def get_queryset(self):
         contest = get_object_or_404(Contest, pk=self.kwargs.get('contest_id'))

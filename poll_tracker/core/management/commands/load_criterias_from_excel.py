@@ -15,10 +15,9 @@ class Command(BaseCommand):
         not_loaded = 0
 
         for row in worksheet:
-            # print(row[0].value, row[1].value, end='\n')
             try:
                 Criteria.objects.get_or_create(
-                    title=row[0].value,  # название критекия (колонка 1)
+                    title=row[0].value,  # название критерия (колонка 1)
                 )
                 uploaded += 1
             except ValueError:

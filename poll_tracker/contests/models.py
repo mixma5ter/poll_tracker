@@ -218,11 +218,6 @@ class Criteria(CreatedModel):
         verbose_name='Максимальная оценка',
         help_text='Максимальная оценка критерия',
     )
-    # score_step = models.SmallIntegerField(
-    #     default=1,
-    #     verbose_name='Максимальная оценка',
-    #     help_text='Максимальная оценка критерия',
-    # )
     order_index = models.SmallIntegerField(
         default=1,
         verbose_name='Порядковый индекс',

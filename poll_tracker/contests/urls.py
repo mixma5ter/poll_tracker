@@ -12,10 +12,10 @@ urlpatterns = [
     # Список конкурсов
     path('<slug:judge_slug>/', ContestsListView.as_view(), name='contest_list'),
 
-    # Просмотр конкурса (описание, выбор действий)
+    # Просмотр конкурса
     path('<slug:judge_slug>/<int:contest_pk>/', ContestDetailView.as_view(), name='contest_detail'),
 
-    # Результаты конкурса (таблица результатов, выбор действий)
+    # Результаты конкурса (таблица результатов)
     path('<slug:judge_slug>/<int:contest_pk>/result/', results_view, name='contest_result'),
 
     # Страница выбора этапа конкурса

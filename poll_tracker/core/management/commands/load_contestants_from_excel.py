@@ -15,7 +15,6 @@ class Command(BaseCommand):
         not_loaded = 0
 
         for row in worksheet:
-            # print(row[0].value, row[1].value, end='\n')
             try:
                 Contestant.objects.get_or_create(
                     org_name=row[0].value,  # имя организации (колонка 1)

@@ -2,7 +2,7 @@ from django.db import models
 
 
 class CreatedModel(models.Model):
-    """Абстрактная модель."""
+    """Общие поля для всех моделей проекта."""
 
     pub_date = models.DateTimeField(
         db_index=True,

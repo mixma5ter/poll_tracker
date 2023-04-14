@@ -3,6 +3,8 @@ from .models import Score
 
 
 class ResultTable(tables.Table):
+    """Таблица результатов конкурса."""
+
     class Meta:
         model = Score
         template_name = 'django_tables2/bootstrap.html'

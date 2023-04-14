@@ -7,7 +7,7 @@ app_name = 'api'  # namespace
 
 router_v1 = DefaultRouter()
 router_v1.register(
-    r'(?P<contest_id>\d+)/results/json',
+    r'results/json/(?P<contest_id>\d+)',
     ContestResultJson,
     basename='results'
 )

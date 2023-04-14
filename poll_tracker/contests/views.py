@@ -8,7 +8,7 @@ from django.views.generic import DetailView, ListView
 from contests.models import Contest, Stage, Track
 from scores.models import Score
 from scores.table import ResultTable
-from users.models import Judge, Contestant
+from users.models import Judge
 
 
 class IndexView(View):
