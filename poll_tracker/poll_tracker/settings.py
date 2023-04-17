@@ -19,12 +19,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 # Для загрузки статики из проекта при DEBUG = False
 # ```python manage.py runserver --insecure```
-DEBUG = True
+DEBUG = False
 
 # IP адреса, при обращении с которых будет доступен DjDT
 INTERNAL_IPS = ['127.0.0.1']
 
-ALLOWED_HOSTS = ['127.0.0.1']
+ALLOWED_HOSTS = [os.getenv('HOST'), '127.0.0.1', 'localhost']
 
 
 # Application definition
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'debug_toolbar',  # Регистрация приложения DjDT
     'smart_selects',  # Регистрация приложения smart_selects для админки
     'django_tables2',  # Регистрация приложения django_tables2 для таблиц
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -93,6 +94,18 @@ DATABASES = {
     }
 }
 
+# Postgres
+# DATABASES = {
+#     'default': {
+#         'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.postgresql'),
+#         'NAME': os.getenv('DB_NAME'),
+#         'USER': os.getenv('POSTGRES_USER'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+#         'HOST': os.getenv('DB_HOST'),
+#         'PORT': os.getenv('DB_PORT')
+#     }
+# }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -116,9 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'ru'
+LANGUAGE_CODE = os.getenv('LANGUAGE_CODE', default='ru')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = os.getenv('TIME_ZONE', default='UTC')
 
 USE_I18N = True
 
@@ -131,13 +144,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-# статика в режиме разработчика
-STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
-
-# Директория загрузки файлов пользователей
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# статика в режиме разработчика
+# STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)
 
 # обрабатываем ошибку 403
 CSRF_FAILURE_VIEW = 'core.views.csrf_failure'
