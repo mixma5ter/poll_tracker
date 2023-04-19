@@ -30,11 +30,6 @@ ALLOWED_HOSTS = [os.getenv('HOST'), '127.0.0.1', 'localhost']
 # Application definition
 
 INSTALLED_APPS = [
-    'contests.apps.ContestsConfig',  # Регистрация приложения contests
-    'users.apps.UsersConfig',  # Регистрация приложения users
-    'scores.apps.ScoresConfig',  # Регистрация приложения scores
-    'core.apps.CoreConfig',  # Регистрация приложения core
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,10 +37,15 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'debug_toolbar',  # Регистрация приложения DjDT
+    'contests.apps.ContestsConfig',  # Регистрация приложения contests
+    'users.apps.UsersConfig',  # Регистрация приложения users
+    'scores.apps.ScoresConfig',  # Регистрация приложения scores
+    'core.apps.CoreConfig',  # Регистрация приложения core
+
+    'rest_framework',
     'smart_selects',  # Регистрация приложения smart_selects для админки
     'django_tables2',  # Регистрация приложения django_tables2 для таблиц
-    'rest_framework',
+    'debug_toolbar',  # Регистрация приложения DjDT
 ]
 
 MIDDLEWARE = [
