@@ -179,7 +179,9 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         'title': title,
         'description': description,
         'button_text': button_text,
+        'judge_slug': judge_slug,
         'contest': contest,
+        'track': track,
         'stage': stage,
         'criterias': criterias,
         'contestants': contestants,
@@ -211,6 +213,7 @@ def results_view(request, judge_slug: str, contest_pk: int):
 
     context = {
         'title': title,
+        'judge_slug': judge_slug,
         'contest': contest,
         'table': table,
         'judge_name': get_object_or_404(Judge, slug=judge_slug),

@@ -19,4 +19,13 @@
 
 <div class="p-2"></div><!-- отступ -->
 
+<!-- кнопка возврата к выбору стадии -->
+<div class="d-grid gap-2 col-6 mx-auto">
+  <a href="{% url 'contests:contest_detail' judge_slug contest.pk %}"
+     class="btn btn-lg btn-outline-dark">
+    Вернуться к конкурсу
+  </a>
+  <div class="p-4"></div><!-- отступ -->
+</div>
+
 {% endblock %}
