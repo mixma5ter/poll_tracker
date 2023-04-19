@@ -34,7 +34,7 @@
         <tr>
           <th></th>
           {% for criteria in criterias %}
-          <th>{{ criteria }}</th>
+          <th class="align-middle">{{ criteria }}<br>(от {{ criteria.min_score }} до {{ criteria.max_score }})</th>
           {% endfor %}
         </tr>
       </thead>
