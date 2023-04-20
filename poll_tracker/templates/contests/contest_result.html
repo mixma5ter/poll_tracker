@@ -20,12 +20,19 @@
 <div class="p-2"></div><!-- отступ -->
 
 <!-- кнопка возврата к выбору стадии -->
-<div class="d-grid gap-2 col-6 mx-auto">
+<div class="d-grid gap-2 col-6 mx-auto" id="table-container">
   <a href="{% url 'contests:contest_detail' judge_slug contest.pk %}"
      class="btn btn-lg btn-outline-dark">
     Вернуться к конкурсу
   </a>
   <div class="p-4"></div><!-- отступ -->
 </div>
+
+<!-- обновление страницы каждые 5 сек -->
+<script>
+  setInterval(function() {
+    location.reload();
+  }, 5000);
+</script>
 
 {% endblock %}
