@@ -12,8 +12,16 @@
       </a>
     </div>
     <div class="col">
-      {% include "includes/judge_name.html" %}
-      {% include "includes/breadcrumbs.html" %}
+      {% if judge_name %}
+        {% include "includes/judge_name.html" %}
+        {% include "includes/breadcrumbs.html" %}
+      {% else %}
+        <a href="https://mcko.ru/" style="font-weight: bold; font-size: large">
+          МОСКОВСКИЙ ЦЕНТР<br>КАЧЕСТВА ОБРАЗОВАНИЯ
+        </a>
+        <br>
+        Система голосования на конкурсной основе
+      {% endif %}
     </div>
   </div>
 </div>
