@@ -5,10 +5,9 @@ body {
 }
 
 header {
-  background-color: #ccc;
-  color: #fff;
+  background-color: #cfe2ff;
+  color: #000;
   padding: 10px;
-  text-align: center;
 }
 
 footer {
@@ -17,7 +16,7 @@ footer {
 }
 
 .f-col {
-  width: 400px;
+  width: 25%;
 }
 
 .container-fluid {

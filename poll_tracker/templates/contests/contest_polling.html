@@ -34,7 +34,7 @@
         <tr>
           <th></th>
           {% for criteria in criterias %}
-          <th>{{ criteria }}</th>
+          <th class="align-middle">{{ criteria }}<br>(от {{ criteria.min_score }} до {{ criteria.max_score }})</th>
           {% endfor %}
         </tr>
       </thead>
@@ -64,7 +64,16 @@
       <button class="btn btn-lg btn-outline-primary" type="submit">{{ button_text }}</button>
     </div>
   {% endif %}
-  <div class="p-4"></div><!-- отступ -->
+  <div class="p-2"></div><!-- отступ -->
+
+  <!-- кнопка возврата к выбору стадии -->
+  <div class="d-grid gap-2 col-6 mx-auto">
+    <a href="{% url 'contests:contest_stage' judge_slug contest.pk track.pk %}"
+       class="btn btn-lg btn-outline-dark">
+      Вернуться к выбору этапа конкурса
+    </a>
+    <div class="p-4"></div><!-- отступ -->
+  </div>
 </form>
 
 {% endblock %}
