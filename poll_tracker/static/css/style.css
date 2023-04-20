@@ -61,6 +61,13 @@ input[type="number"] {
 	border-radius: 3px;
 }
 
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  margin: 0;
+  padding-left: 15px;
+}
+
 input[type="number"]:focus {
+  outline: none;
 	border: 2px solid grey;
 }
