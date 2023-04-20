@@ -35,12 +35,20 @@
     {% endif %}
 
     <!-- если конкурс видим, отображаем кнопку результатов -->
+    <hr>
+    <div class="p-1"></div><!-- отступ -->
     {% if contest.visible %}
     <a href="{% url 'contests:contest_result' judge_slug contest.pk %}"
        class="btn btn-lg btn-outline-dark">
       Посмотреть результаты голосования
     </a>
     {% endif %}
+    <div class="p-1"></div><!-- отступ -->
+    <a href="{% url 'contests:contest_list' judge_slug %}"
+       class="btn btn-lg btn-outline-dark">
+      Вернуться к выбору конкурса
+    </a>
+    <div class="p-4"></div><!-- отступ -->
 
     <div class="p-4"></div><!-- отступ -->
   </div>

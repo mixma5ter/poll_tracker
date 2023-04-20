@@ -22,6 +22,15 @@
       <div class="p-1"></div><!-- отступ -->
   {% endfor %}
 
+  <!-- кнопка возврата к выбору стадии -->
+    <hr>
+    <div class="p-1"></div><!-- отступ -->
+    <a href="{% url 'contests:contest_detail' judge_slug contest.pk %}"
+       class="btn btn-lg btn-outline-dark">
+      Вернуться к выбору потока
+    </a>
+    <div class="p-4"></div><!-- отступ -->
+
   <div class="p-4"></div><!-- отступ -->
 </div>
 

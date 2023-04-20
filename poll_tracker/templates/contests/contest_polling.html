@@ -64,10 +64,13 @@
       <button class="btn btn-lg btn-outline-primary" type="submit">{{ button_text }}</button>
     </div>
   {% endif %}
-  <div class="p-2"></div><!-- отступ -->
+  <div class="p-1"></div><!-- отступ -->
 
   <!-- кнопка возврата к выбору стадии -->
   <div class="d-grid gap-2 col-6 mx-auto">
+    <div class="p-1"></div><!-- отступ -->
+    <hr>
+    <div class="p-1"></div><!-- отступ -->
     <a href="{% url 'contests:contest_stage' judge_slug contest.pk track.pk %}"
        class="btn btn-lg btn-outline-dark">
       Вернуться к выбору этапа конкурса
