@@ -32,6 +32,7 @@ class ContestAdmin(MyAdmin):
         'end_date',
         'visible',
         'is_active',
+        'vmix_url',
         'pub_date',
         'update_date',
     )
