@@ -26,6 +26,10 @@ class Command(BaseCommand):
                 message = f'Конкурс с id = {contest_id} не существует.'
                 self.stdout.write(self.style.WARNING(message))
                 return message
+            if contest.is_active:
+                message = f'Конкурс {contest.title} активен. Невозможно обнулить оценки по активному конкурсу'
+                self.stdout.write(self.style.WARNING(message))
+                return message
             stages = Stage.objects.filter(contest=contest).prefetch_related('criterias')
             if not stages:
                 message = f'Не созданы этапы для конкурса {contest.title}.'
