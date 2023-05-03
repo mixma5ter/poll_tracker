@@ -1,6 +1,9 @@
 from django.contrib import admin, messages
 from django.core.management import call_command
+from django.db.models import Sum
+from django.http import HttpResponse
 from django.utils.safestring import mark_safe
+from openpyxl.workbook import Workbook
 
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
@@ -40,7 +43,7 @@ class ContestAdmin(MyAdmin):
     list_editable = ('visible', 'is_active',)
     search_fields = ('title', 'description', 'start_date',)
     list_filter = ('start_date', 'pub_date', 'update_date', 'visible', 'is_active',)
-    actions = ['add_scores', 'set_default']
+    actions = ['add_scores', 'set_default', 'save_results']
 
     @admin.action(description='Добавить оценки')
     def add_scores(self, request, queryset):
@@ -59,6 +62,30 @@ class ContestAdmin(MyAdmin):
                 self.message_user(request, message=message, level=messages.SUCCESS)
             else:
                 self.message_user(request, message=message, level=messages.ERROR)
+
+    @admin.action(description='Сохранить оценки в Excel')
+    def save_results(self, request, queryset):
+        # Создаем новый workbook в (csv) формате разделенный запятыми
+        wb = Workbook()
+        ws = wb.active
+        ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
+
+        for contest in queryset:
+            # Получаем данные из queryset
+            data = contest.scores.values('contestant__name', 'contestant__org_name').annotate(
+                Sum('score')).order_by('contestant')
+            # Записываем данные в таблицу
+            for row in data:
+                ws.append([contest.title,
+                           row['contestant__name'],
+                           row['contestant__org_name'],
+                           row['score__sum']])
+
+        # Создаем response и прикрепляем к нему excel файл
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename=scores.xlsx'
+        wb.save(response)
+        return response
 
 
 @admin.register(Track)
