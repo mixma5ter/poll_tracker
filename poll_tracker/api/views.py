@@ -19,6 +19,7 @@ class ContestResultJson(viewsets.ModelViewSet):
 
         host = self.request.get_host()
         for item in data:
+            item['contestant__full_name'] = f'{item["contestant__name"]} - {item["contestant__org_name"]}'
             if item['contestant__photo']:
                 item['contestant__photo'] = f'http://{host}{MEDIA_URL}{item["contestant__photo"]}'
 
