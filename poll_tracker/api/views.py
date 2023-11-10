@@ -10,9 +10,17 @@ class ContestResultJson(viewsets.ModelViewSet):
     """Отправка данных в VMix."""
 
     def get_queryset(self):
+        request = self.request
         contest = get_object_or_404(Contest, pk=self.kwargs.get('contest_id'))
-        data = contest.scores.values('contestant__name', 'contestant__org_name').annotate(
+        data = contest.scores.values('contestant__photo',
+                                     'contestant__name',
+                                     'contestant__org_name').annotate(
             Sum('score')).order_by('contestant')
+
+        # Перебираем данные и создаем абсолютный URL для каждой фотографии
+        for item in data:
+            item['contestant__photo'] = request.build_absolute_uri(item['contestant__photo'])
+
         ordered_data = data.order_by('-score__sum')
         return ordered_data
 
