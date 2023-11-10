@@ -4,25 +4,25 @@ from django.shortcuts import get_object_or_404
 from rest_framework import viewsets
 
 from contests.models import Contest
+from poll_tracker.settings import MEDIA_URL
 
 
 class ContestResultJson(viewsets.ModelViewSet):
     """Отправка данных в VMix."""
 
     def get_queryset(self):
-        request = self.request
         contest = get_object_or_404(Contest, pk=self.kwargs.get('contest_id'))
         data = contest.scores.values('contestant__photo',
                                      'contestant__name',
                                      'contestant__org_name').annotate(
-            Sum('score')).order_by('contestant')
+            score_sum=Sum('score')).order_by('-score_sum')
 
-        # Перебираем данные и создаем абсолютный URL для каждой фотографии
+        host = self.request.get_host()
         for item in data:
-            item['contestant__photo'] = request.build_absolute_uri(item['contestant__photo'])
+            if item['contestant__photo']:
+                item['contestant__photo'] = f'http://{host}{MEDIA_URL}{item["contestant__photo"]}'
 
-        ordered_data = data.order_by('-score__sum')
-        return ordered_data
+        return data
 
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
