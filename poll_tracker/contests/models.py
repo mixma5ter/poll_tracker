@@ -139,6 +139,11 @@ class Track(CreatedModel):
 class Stage(CreatedModel):
     """Модель этапа конкурса."""
 
+    COUNTING_METHOD_CHOICES = (
+        ('sum', 'Сумма'),
+        ('avg', 'Среднее'),
+    )
+
     id = models.BigAutoField(
         primary_key=True
     )
@@ -158,6 +163,13 @@ class Stage(CreatedModel):
         blank=True,
         verbose_name='Описание',
         help_text='Введите описание этапа конкурса',
+    )
+    counting_method = models.CharField(
+        max_length=3,
+        choices=COUNTING_METHOD_CHOICES,
+        default='sum',
+        verbose_name='Метод подсчета',
+        help_text='Метод подсчёта оценок на этапе',
     )
     criterias = models.ManyToManyField(
         'Criteria',
