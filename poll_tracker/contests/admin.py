@@ -1,6 +1,5 @@
 from django.contrib import admin, messages
 from django.core.management import call_command
-from django.db.models import Sum
 from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from openpyxl.workbook import Workbook
@@ -8,6 +7,7 @@ from openpyxl.workbook import Workbook
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
 from core.management.commands.set_default import Command as SetDefaultScoresCommand
+from core.utils import process_contest_data
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -71,11 +71,9 @@ class ContestAdmin(MyAdmin):
         ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
 
         for contest in queryset:
-            # Получаем данные из queryset
-            data = contest.scores.values('contestant__name', 'contestant__org_name').annotate(
-                Sum('score')).order_by('contestant')
-            # Записываем данные в таблицу
-            for row in data:
+            # Получаем результаты конкурсов
+            sorted_results = process_contest_data(contest)
+            for row in sorted_results:
                 ws.append([contest.title,
                            row['contestant__name'],
                            row['contestant__org_name'],

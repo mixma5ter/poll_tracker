@@ -1,19 +1,14 @@
-from operator import itemgetter
-
 from django.contrib import messages
-from django.db.models import Avg, DecimalField, Sum
 from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, render, redirect
 from django.views import View
 from django.views.generic import DetailView, ListView
 
 from contests.models import Contest, Stage, Track
-from core.utils import Round
+from core.utils import process_contest_data
 from scores.models import Score
 from scores.table import ResultTable
 from users.models import Judge
-
-ACCURACY = 2  # до скольки знаков после запятой округлять оценки
 
 
 class IndexView(View):
@@ -206,35 +201,8 @@ def results_view(request, judge_slug: str, contest_pk: int):
 
     contest = get_object_or_404(Contest, pk=contest_pk)
 
-    data_sum = contest.scores.filter(stage__counting_method='sum')
-    data_avg = contest.scores.filter(stage__counting_method='avg')
-
-    data_sum = data_sum.values(
-        'contestant__name',
-        'contestant__org_name'
-    ).annotate(
-        score__sum=Round(Sum('score'), ACCURACY, output_field=DecimalField())
-    ).order_by()
-
-    data_avg = data_avg.values(
-        'contestant__name',
-        'contestant__org_name'
-    ).annotate(
-        score__sum=Round(Avg('score'), ACCURACY, output_field=DecimalField())
-    ).order_by()
-
-    data_combined = [*data_sum, *data_avg]
-
-    merged_results = {}
-
-    for result in data_combined:
-        contestant_name = result['contestant__name']
-        if contestant_name not in merged_results:
-            merged_results[contestant_name] = result
-        else:
-            merged_results[contestant_name]['score__sum'] += result['score__sum']
-
-    sorted_results = sorted(merged_results.values(), key=itemgetter('score__sum'), reverse=True)
+    # Получаем результаты конкурса
+    sorted_results = process_contest_data(contest)
 
     table = ResultTable(sorted_results)
 
