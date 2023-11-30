@@ -3,6 +3,8 @@ from operator import itemgetter
 
 from django.db.models import Avg, Sum, DecimalField, Func
 
+from scores.models import Score
+
 ACCURACY = 2  # до скольки знаков после запятой округлять оценки
 
 
@@ -46,3 +48,27 @@ def process_contest_data(contest):
     sorted_results = sorted(merged_results.values(), key=itemgetter('score__sum'), reverse=True)
 
     return sorted_results
+
+
+def process_stage_data(stage):
+    """Получение результатов этапа конкурса."""
+
+    scores = Score.objects.all().filter(stage=stage)
+    data = []
+
+    if stage.counting_method == 'sum':
+        data = scores.values(
+            'contestant__name',
+            'contestant__org_name'
+        ).annotate(
+            score__sum=Round(Sum('score'), ACCURACY, output_field=DecimalField())
+        ).order_by()
+    elif stage.counting_method == 'avg':
+        data = scores.values(
+            'contestant__name',
+            'contestant__org_name'
+        ).annotate(
+            score__sum=Round(Avg('score'), ACCURACY, output_field=DecimalField())
+        ).order_by()
+
+    return data

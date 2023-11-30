@@ -7,7 +7,7 @@ from openpyxl.workbook import Workbook
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
 from core.management.commands.set_default import Command as SetDefaultScoresCommand
-from core.utils import process_contest_data
+from core.utils import process_contest_data, process_stage_data
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -69,6 +69,7 @@ class ContestAdmin(MyAdmin):
         wb = Workbook()
         ws = wb.active
         ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
+        ws.append([])  # Добавляем пустую строку
 
         for contest in queryset:
             # Получаем результаты конкурсов
@@ -79,9 +80,11 @@ class ContestAdmin(MyAdmin):
                            row['contestant__org_name'],
                            row['score__sum']])
 
+            ws.append([])  # Добавляем пустую строку
+
         # Создаем response и прикрепляем к нему excel файл
         response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename=scores.xlsx'
+        response['Content-Disposition'] = f'attachment; filename=contest_scores.xlsx'
         wb.save(response)
         return response
 
@@ -128,6 +131,32 @@ class StageAdmin(MyAdmin):
     list_editable = ('order_index',)
     search_fields = ('contest__title', 'title', 'description',)
     list_filter = ('pub_date', 'update_date',)
+    actions = ['save_results']
+
+    @admin.action(description='Сохранить оценки этапов в Excel')
+    def save_results(self, request, queryset):
+        # Создаем новый workbook в (csv) формате разделенный запятыми
+        wb = Workbook()
+        ws = wb.active
+        ws.append(['Этап', 'Имя участника', 'Название организации', 'Оценка'])
+        ws.append([])  # Добавляем пустую строку
+
+        for stage in queryset:
+            # Получаем результаты конкурсов
+            sorted_results = process_stage_data(stage)
+            for row in sorted_results:
+                ws.append([stage.title,
+                           row['contestant__name'],
+                           row['contestant__org_name'],
+                           row['score__sum']])
+
+            ws.append([])  # Добавляем пустую строку
+
+        # Создаем response и прикрепляем к нему excel файл
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename=stage_scores.xlsx'
+        wb.save(response)
+        return response
 
 
 @admin.register(Criteria)
