@@ -1,10 +1,7 @@
-import sys
-
 from django.core.management.base import BaseCommand
 
-from contests.models import Contest, Criteria, Stage, Track
+from contests.models import Contest, Stage, Track
 from scores.models import Score
-from users.models import Contestant, Judge
 
 
 class Command(BaseCommand):
@@ -44,10 +41,6 @@ class Command(BaseCommand):
             return message
 
     def create_scores(self, contest, tracks, stages):
-        contestants = Contestant.objects.filter(tracks__in=tracks)
-        judges = Judge.objects.filter(tracks__in=tracks)
-        criterias = Criteria.objects.filter(stages__in=stages).select_related()
-
         for track in tracks:
             for stage in stages:
                 if stage.is_judged:

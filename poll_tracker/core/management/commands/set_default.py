@@ -1,10 +1,7 @@
-import sys
-
 from django.core.management.base import BaseCommand
 
-from contests.models import Contest, Criteria, Stage, Track
+from contests.models import Contest, Criteria, Stage
 from scores.models import Score
-from users.models import Contestant, Judge
 
 
 class Command(BaseCommand):
