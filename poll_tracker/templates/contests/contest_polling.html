@@ -41,7 +41,7 @@
       <tbody>
         {% for contestant in contestants %}
         <tr>
-          <th class="f-col" scope="col">{{ contestant }}</th>
+          <th class="f-col" scope="col">{{ contestant.name }}</th>
           {% for criteria in criterias %}
             {% for form in formset %}
               {% if form.instance.criteria == criteria and form.instance.contestant == contestant %}
