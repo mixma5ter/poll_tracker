@@ -1,38 +1,44 @@
-from abc import ABC
 from operator import itemgetter
 
-from django.db.models import Avg, Sum, DecimalField, Func
+from django.db.models import Sum, Count, FloatField
 
 from scores.models import Score
-
-ACCURACY = 2  # до скольки знаков после запятой округлять оценки
-
-
-class Round(Func, ABC):
-    function = 'ROUND'
-    arity = 2
-    output_field = DecimalField()
 
 
 def process_contest_data(contest):
     """Получение результатов конкурса."""
 
-    data_sum = contest.scores.filter(stage__counting_method='sum')
-    data_avg = contest.scores.filter(stage__counting_method='avg')
+    tracks = contest.tracks.all().order_by('order_index')
 
-    data_sum = data_sum.values(
-        'contestant__name',
-        'contestant__org_name'
-    ).annotate(
-        score__sum=Round(Sum('score'), ACCURACY, output_field=DecimalField())
-    ).order_by()
+    scores_sum = contest.scores.filter(stage__counting_method='sum')
+    scores_avg = contest.scores.filter(stage__counting_method='avg')
 
-    data_avg = data_avg.values(
-        'contestant__name',
-        'contestant__org_name'
-    ).annotate(
-        score__sum=Round(Avg('score'), ACCURACY, output_field=DecimalField())
-    ).order_by()
+    data_sum = []
+    data_avg = []
+
+    for track in tracks:
+        judges_count = len(track.judges.all())
+
+        # Если у потока нет судей, делить на ноль нельзя
+        if judges_count == 0:
+            return None
+        # Сумма оценок потока
+        data_sum += scores_sum.filter(track=track).values(
+            'contestant__photo',
+            'contestant__name',
+            'contestant__org_name'
+        ).annotate(
+            score__sum=Sum('score')
+        ).order_by('-score__sum')
+
+        # Сумма оценок деленная на количество судей потока
+        data_avg += scores_avg.filter(track=track).values(
+            'contestant__photo',
+            'contestant__name',
+            'contestant__org_name'
+        ).annotate(
+            score__sum=Sum('score')/judges_count
+        ).order_by('-score__sum')
 
     data_combined = [*data_sum, *data_avg]
 
@@ -52,23 +58,25 @@ def process_contest_data(contest):
 
 def process_stage_data(stage):
     """Получение результатов этапа конкурса."""
-
-    scores = Score.objects.all().filter(stage=stage)
+    scores = Score.objects.filter(stage=stage)  # Фильтруем оценки по текущему этапу
     data = []
 
     if stage.counting_method == 'sum':
         data = scores.values(
+            'contestant__photo',
             'contestant__name',
             'contestant__org_name'
         ).annotate(
-            score__sum=Round(Sum('score'), ACCURACY, output_field=DecimalField())
-        ).order_by()
+            score__sum=Sum('score')
+        ).order_by('-score__sum')
     elif stage.counting_method == 'avg':
         data = scores.values(
+            'contestant__photo',
             'contestant__name',
             'contestant__org_name'
         ).annotate(
-            score__sum=Round(Avg('score'), ACCURACY, output_field=DecimalField())
-        ).order_by()
+            judges_count=Count('judge', distinct=True),
+            score__sum=Sum('score') / Count('judge', distinct=True, output_field=FloatField())
+        ).order_by('-score__sum')
 
     return data
