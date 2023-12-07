@@ -1,7 +1,6 @@
 from django.db import models
 
 from core.models import CreatedModel
-from poll_tracker.settings import ALLOWED_HOSTS
 
 
 class Contest(CreatedModel):
@@ -39,12 +38,6 @@ class Contest(CreatedModel):
         verbose_name='Идет голосование',
         help_text='Установите флажок перед началом голосования, снимите после завершения',
     )
-
-    # def get_absolute_url(self):
-    #     return reverse('contest', kwargs={'contest_pk': self.pk})
-
-    def vmix_url(self):
-        return f'http://{ALLOWED_HOSTS[0]}/api/results/json/{self.id}'
 
     def __str__(self):
         return self.title

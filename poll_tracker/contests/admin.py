@@ -4,10 +4,11 @@ from django.http import HttpResponse
 from django.utils.safestring import mark_safe
 from openpyxl.workbook import Workbook
 
+from api.models import APIClient
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
 from core.management.commands.set_default import Command as SetDefaultScoresCommand
-from core.utils import process_contest_data, process_stage_data
+from core.utils import process_contest_data
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -35,7 +36,6 @@ class ContestAdmin(MyAdmin):
         'end_date',
         'visible',
         'is_active',
-        'vmix_url',
         'pub_date',
         'update_date',
     )
@@ -43,7 +43,7 @@ class ContestAdmin(MyAdmin):
     list_editable = ('visible', 'is_active',)
     search_fields = ('title', 'description', 'start_date',)
     list_filter = ('start_date', 'pub_date', 'update_date', 'visible', 'is_active',)
-    actions = ['add_scores', 'set_default', 'save_results']
+    actions = ['add_scores', 'set_default']
 
     @admin.action(description='Добавить оценки')
     def add_scores(self, request, queryset):
@@ -62,31 +62,6 @@ class ContestAdmin(MyAdmin):
                 self.message_user(request, message=message, level=messages.SUCCESS)
             else:
                 self.message_user(request, message=message, level=messages.ERROR)
-
-    @admin.action(description='Сохранить оценки в Excel')
-    def save_results(self, request, queryset):
-        # Создаем новый workbook в (csv) формате разделенный запятыми
-        wb = Workbook()
-        ws = wb.active
-        ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
-        ws.append([])  # Добавляем пустую строку
-
-        for contest in queryset:
-            # Получаем результаты конкурсов
-            sorted_results = process_contest_data(contest)
-            for row in sorted_results:
-                ws.append([contest.title,
-                           row['contestant__name'],
-                           row['contestant__org_name'],
-                           row['score__sum']])
-
-            ws.append([])  # Добавляем пустую строку
-
-        # Создаем response и прикрепляем к нему excel файл
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename=contest_scores.xlsx'
-        wb.save(response)
-        return response
 
 
 @admin.register(Track)
@@ -131,32 +106,6 @@ class StageAdmin(MyAdmin):
     list_editable = ('order_index',)
     search_fields = ('contest__title', 'title', 'description',)
     list_filter = ('pub_date', 'update_date',)
-    actions = ['save_results']
-
-    @admin.action(description='Сохранить оценки этапов в Excel')
-    def save_results(self, request, queryset):
-        # Создаем новый workbook в (csv) формате разделенный запятыми
-        wb = Workbook()
-        ws = wb.active
-        ws.append(['Этап', 'Имя участника', 'Название организации', 'Оценка'])
-        ws.append([])  # Добавляем пустую строку
-
-        for stage in queryset:
-            # Получаем результаты конкурсов
-            sorted_results = process_stage_data(stage)
-            for row in sorted_results:
-                ws.append([stage.title,
-                           row['contestant__name'],
-                           row['contestant__org_name'],
-                           row['score__sum']])
-
-            ws.append([])  # Добавляем пустую строку
-
-        # Создаем response и прикрепляем к нему excel файл
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename=stage_scores.xlsx'
-        wb.save(response)
-        return response
 
 
 @admin.register(Criteria)
@@ -257,6 +206,52 @@ class ScoreAdmin(MyAdmin):
     search_fields = ('contest__title', 'track__title', 'stage__title',
                      'criteria__title', 'judge__name', 'contestant__name',)
     list_filter = ('pub_date', 'update_date', 'contest',)
+
+
+@admin.register(APIClient)
+class APIClientAdmin(MyAdmin):
+    """Регистрация модели APIData в админке."""
+
+    list_display = (
+        'pk',
+        'title',
+        'link',
+        'contest',
+        'track',
+        'stage',
+    )
+    list_display_links = ('pk', 'title',)
+    list_editable = ('contest', 'track', 'stage',)
+    actions = ['save_results']
+
+    @admin.action(description='Сохранить оценки в Excel')
+    def save_results(self, request, queryset):
+        # Создаем новый workbook в (csv) формате разделенный запятыми
+        wb = Workbook()
+        ws = wb.active
+        ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
+        ws.append([])  # Добавляем пустую строку
+
+        for client in queryset:
+            contest = client.contest
+            if not contest:
+                return None
+            track = client.track
+            stage = client.stage
+            results = process_contest_data(contest, track, stage)
+            for row in results:
+                ws.append([contest.title,
+                           row['contestant__name'],
+                           row['contestant__org_name'],
+                           row['score__sum']])
+
+            ws.append([])  # Добавляем пустую строку
+
+        # Создаем response и прикрепляем к нему excel файл
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename=contest_scores.xlsx'
+        wb.save(response)
+        return response
 
 
 admin.site.site_title = 'Poll Tracker'

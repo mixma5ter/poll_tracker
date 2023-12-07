@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',  # Регистрация приложения users
     'scores.apps.ScoresConfig',  # Регистрация приложения scores
     'core.apps.CoreConfig',  # Регистрация приложения core
+    'api.apps.ApiConfig',  # Регистрация приложения API
 
     'rest_framework',
     'smart_selects',  # Регистрация приложения smart_selects для админки

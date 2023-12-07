@@ -1,17 +1,21 @@
 from operator import itemgetter
 
-from django.db.models import Sum, Count, FloatField
+from django.db.models import Sum
 
 from scores.models import Score
 
 
-def process_contest_data(contest):
-    """Получение результатов конкурса."""
+def process_contest_data(contest, track=None, stage=None):
+    scores = Score.objects.filter(contest=contest)
+    if track:
+        scores = scores.filter(track=track)
+    if stage:
+        scores = scores.filter(stage=stage)
 
     tracks = contest.tracks.all().order_by('order_index')
 
-    scores_sum = contest.scores.filter(stage__counting_method='sum')
-    scores_avg = contest.scores.filter(stage__counting_method='avg')
+    scores_sum = scores.filter(stage__counting_method='sum')
+    scores_avg = scores.filter(stage__counting_method='avg')
 
     data_sum = []
     data_avg = []
@@ -54,29 +58,3 @@ def process_contest_data(contest):
     sorted_results = sorted(merged_results.values(), key=itemgetter('score__sum'), reverse=True)
 
     return sorted_results
-
-
-def process_stage_data(stage):
-    """Получение результатов этапа конкурса."""
-    scores = Score.objects.filter(stage=stage)  # Фильтруем оценки по текущему этапу
-    data = []
-
-    if stage.counting_method == 'sum':
-        data = scores.values(
-            'contestant__photo',
-            'contestant__name',
-            'contestant__org_name'
-        ).annotate(
-            score__sum=Sum('score')
-        ).order_by('-score__sum')
-    elif stage.counting_method == 'avg':
-        data = scores.values(
-            'contestant__photo',
-            'contestant__name',
-            'contestant__org_name'
-        ).annotate(
-            judges_count=Count('judge', distinct=True),
-            score__sum=Sum('score') / Count('judge', distinct=True, output_field=FloatField())
-        ).order_by('-score__sum')
-
-    return data
