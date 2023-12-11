@@ -22,6 +22,9 @@ class ContestResultJson(viewsets.ModelViewSet):
         results = process_contest_data(contest, track, stage)
         host = self.request.get_host()
         for item in results:
+            item['contest__title'] = contest.title
+            item['contest__track'] = track.title if track else ""
+            item['contest__stage'] = stage.title if stage else ""
             if item['contestant__photo']:
                 item['contestant__photo'] = f'http://{host}{MEDIA_URL}{item["contestant__photo"]}'
         return list(results)
