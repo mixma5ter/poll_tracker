@@ -82,6 +82,7 @@ class TrackAdmin(MyAdmin):
         'update_date',
     )
     list_display_links = ('pk', 'title',)
+    list_editable = ('order_index',)
     search_fields = ('contest__title', 'title', 'description', 'start_date',)
     list_filter = ('start_date', 'pub_date', 'update_date',)
 
@@ -221,7 +222,7 @@ class APIClientAdmin(MyAdmin):
         'stage',
     )
     list_display_links = ('pk', 'title',)
-    list_editable = ('contest', 'track', 'stage',)
+    readonly_fields = ('link',)
     actions = ['save_results']
 
     @admin.action(description='Сохранить оценки в Excel')

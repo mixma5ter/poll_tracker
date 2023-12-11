@@ -17,7 +17,6 @@ class APIClient(models.Model):
         null=True,
         blank=True,
         verbose_name='Ссылка на API',
-        help_text='Ссылка на API',
     )
     contest = models.ForeignKey(
         'contests.Contest',
