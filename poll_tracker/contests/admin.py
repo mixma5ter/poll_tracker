@@ -97,7 +97,7 @@ class StageAdmin(MyAdmin):
         'title',
         'description',
         'criterias_list',
-        'is_judged',
+        'type',
         'counting_method',
         'order_index',
         'pub_date',

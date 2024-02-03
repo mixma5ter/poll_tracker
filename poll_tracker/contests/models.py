@@ -132,6 +132,12 @@ class Track(CreatedModel):
 class Stage(CreatedModel):
     """Модель этапа конкурса."""
 
+    TYPE_CHOICES = (
+        ('judged', 'Оценивается судьями'),
+        ('brain_ring', 'Брейн-ринг'),
+        ('not_judged', 'Не оценивается'),
+    )
+
     COUNTING_METHOD_CHOICES = (
         ('sum', 'Сумма'),
         ('avg', 'Среднее'),
@@ -157,6 +163,13 @@ class Stage(CreatedModel):
         verbose_name='Описание',
         help_text='Введите описание этапа конкурса',
     )
+    type = models.CharField(
+        max_length=11,
+        choices=TYPE_CHOICES,
+        default='judged',
+        verbose_name='Тип оценки',
+        help_text='Выберите тип оценки',
+    )
     counting_method = models.CharField(
         max_length=3,
         choices=COUNTING_METHOD_CHOICES,
@@ -169,11 +182,6 @@ class Stage(CreatedModel):
         related_name='stages',
         verbose_name='Критерии',
         help_text='Выберите критерии этапа конкурса.',
-    )
-    is_judged = models.BooleanField(
-        default=True,
-        verbose_name='Оценивается судьями',
-        help_text='Установите флажок если этап оценивается судьями',
     )
     order_index = models.SmallIntegerField(
         default=1,

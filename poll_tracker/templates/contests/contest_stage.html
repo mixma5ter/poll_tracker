@@ -16,7 +16,7 @@
   <!-- отображаем кнопки потоков конкурса -->
   {% for stage in stages %}
       <a href="{% url 'contests:contest_polling' judge_slug contest.pk track.pk stage.pk %}"
-         class="btn btn-lg btn-outline-primary {% if not contest.is_active or not stage.is_judged %} disabled {% endif %}">
+         class="btn btn-lg btn-outline-primary {% if not contest.is_active or not stage.type == 'judged' %} disabled {% endif %}">
         {{ stage.title }}
       </a>
       <div class="p-1"></div><!-- отступ -->

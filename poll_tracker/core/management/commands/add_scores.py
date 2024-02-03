@@ -43,7 +43,7 @@ class Command(BaseCommand):
     def create_scores(self, contest, tracks, stages):
         for track in tracks:
             for stage in stages:
-                if stage.is_judged:
+                if stage.type == 'judged':
                     for contestant in track.contestants.all():
                         for judge in track.judges.all():
                             for criteria in stage.criterias.all():
