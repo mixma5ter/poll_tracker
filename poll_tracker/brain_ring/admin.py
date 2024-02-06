@@ -10,8 +10,11 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = (
         'stage',
         'question_index',
+        'is_active',
+        'text',
+        'options',
         'correct_answer',
     )
-    list_editable = ('question_index', 'correct_answer',)
+    list_editable = ('question_index', 'is_active',)
     search_fields = ('stage', 'question_index',)
-    list_filter = ('stage',)
+    list_filter = ('stage', 'is_active',)

@@ -6,13 +6,6 @@ from contests.models import Stage
 class Question(models.Model):
     """Модель вопроса."""
 
-    CORRECT_ANSWER_CHOICES = [
-        (1, 'A'),
-        (2, 'B'),
-        (3, 'C'),
-        (4, 'D'),
-    ]
-
     stage = models.ForeignKey(
         Stage,
         limit_choices_to={'type': 'brain_ring'},
@@ -26,11 +19,23 @@ class Question(models.Model):
         verbose_name='Индекс вопроса',
         help_text='Введите порядковый номер вопроса в этапе',
     )
-    correct_answer = models.PositiveSmallIntegerField(
-        default=1,
-        choices=CORRECT_ANSWER_CHOICES,
+    is_active = models.BooleanField(
+        default=False,
+        verbose_name='Активный вопрос',
+        help_text='Определите, является ли вопрос активным',
+    )
+    text = models.TextField(
+        verbose_name='Текст вопроса',
+        help_text='Введите текст вопроса',
+    )
+    options = models.TextField(
+        verbose_name='Варианты ответа',
+        help_text='Введите варианты ответа через точку с запятой (;)',
+    )
+    correct_answer = models.CharField(
+        max_length=255,
         verbose_name='Правильный ответ',
-        help_text='Выберите правильный ответ',
+        help_text='Введите правильный ответ',
     )
 
     def __str__(self):
