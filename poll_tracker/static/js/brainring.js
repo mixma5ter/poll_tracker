@@ -65,12 +65,9 @@ document.addEventListener('click', function(event) {
   if (event.target.matches('.option-button')) {
     var selectedOption = event.target.textContent;
 
-    var csrfToken = getCookie('csrftoken'); // Получение значения CSRF токена из cookie
-
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/submit-answer/', true);
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('X-CSRFToken', csrfToken); // Включение CSRF токена в заголовки запроса
 
     xhr.onload = function() {
       if (xhr.status === 200) {
@@ -87,15 +84,3 @@ document.addEventListener('click', function(event) {
     xhr.send(JSON.stringify({ answer: selectedOption }));
   }
 }, false);
-
-// Функция для получения значения cookie по имени
-function getCookie(name) {
-  var cookieArr = document.cookie.split(';');
-  for (var i = 0; i < cookieArr.length; i++) {
-    var cookiePair = cookieArr[i].trim().split('=');
-    if (cookiePair[0] === name) {
-      return decodeURIComponent(cookiePair[1]);
-    }
-  }
-  return null;
-}
