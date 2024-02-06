@@ -9,7 +9,7 @@ from poll_tracker.settings import MEDIA_URL
 
 
 class ContestResultJson(viewsets.ModelViewSet):
-    """Отправка данных в VMix."""
+    """Отправка данных API клиенту."""
 
     def get_queryset(self):
         client = get_object_or_404(APIClient, title=self.kwargs.get('value'))
