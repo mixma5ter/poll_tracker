@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'scores.apps.ScoresConfig',  # Регистрация приложения scores
     'core.apps.CoreConfig',  # Регистрация приложения core
     'api.apps.ApiConfig',  # Регистрация приложения API
+    'brain_ring.apps.BrainRingConfig',  # Регистрация приложения brain_ring
 
     'rest_framework',
     'smart_selects',  # Регистрация приложения smart_selects для админки
