@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %}{{ contest.title }}{% endblock %}
+
+{% block content %}
+
+<h2 id="question-text"></h2>
+<ul id="options-list"></ul>
+
+<script src="{% static 'js/brainring.js' %}"></script>
+
+{% endblock %}
