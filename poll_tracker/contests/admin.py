@@ -141,6 +141,8 @@ class ContestantAdmin(MyAdmin):
         'org_name',
         'description',
         'photo',
+        'participant_code',
+        'ip_address',
         'order_index',
         'pub_date',
         'update_date',
@@ -149,7 +151,7 @@ class ContestantAdmin(MyAdmin):
     list_editable = ('order_index',)
     search_fields = ('name', 'org_name', 'description')
     list_filter = ('pub_date', 'update_date',)
-    fields = ('name', 'org_name', 'description', 'photo', 'get_html_photo',)
+    fields = ('name', 'org_name', 'description', 'photo', 'ip_address', 'get_html_photo',)
     readonly_fields = ('get_html_photo',)
 
     def get_html_photo(self, object):

@@ -4,13 +4,6 @@ from django.db import models
 class Question(models.Model):
     """Модель вопроса."""
 
-    stage = models.ForeignKey(
-        'contests.Stage',
-        limit_choices_to={'type': 'brain_ring'},
-        on_delete=models.CASCADE,
-        verbose_name='Этап',
-        help_text='Выберите этап',
-    )
     question_index = models.PositiveSmallIntegerField(
         default=1,
         verbose_name='Индекс вопроса',
@@ -34,6 +27,11 @@ class Question(models.Model):
         verbose_name='Правильный ответ',
         help_text='Введите правильный ответ',
     )
+    points = models.PositiveSmallIntegerField(
+        default=1,
+        verbose_name='Баллы за правильный ответ',
+        help_text='Введите количество баллов за правильный ответ',
+    )
 
     def __str__(self):
         return f'Вопрос {self.question_index}'
@@ -41,10 +39,4 @@ class Question(models.Model):
     class Meta:
         verbose_name = 'Вопрос'
         verbose_name_plural = 'Вопросы'
-        ordering = ('stage', 'question_index',)
-        constraints = [
-            models.UniqueConstraint(
-                fields=['stage', 'question_index'],
-                name='unique_question_model'
-            )
-        ]
+        ordering = ('question_index',)

@@ -1,4 +1,3 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.models import CreatedModel
@@ -181,7 +180,6 @@ class Stage(CreatedModel):
     criterias = models.ManyToManyField(
         'Criteria',
         blank=True,
-        null=True,
         related_name='stages',
         verbose_name='Критерии',
         help_text='Выберите критерии этапа конкурса.',
@@ -189,7 +187,6 @@ class Stage(CreatedModel):
     questions = models.ManyToManyField(
         'brain_ring.Question',
         blank=True,
-        null=True,
         related_name='stages',
         verbose_name='Вопросы',
         help_text='Выберите вопросы для брейн-ринга.',

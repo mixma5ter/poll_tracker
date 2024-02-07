@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 from core.models import CreatedModel
@@ -30,6 +32,17 @@ class Contestant(CreatedModel):
         upload_to='contestants',
         verbose_name='Логотип',
         help_text='Добавьте логотип',
+    )
+    participant_code = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        verbose_name='Шифр',
+    )
+    ip_address = models.CharField(
+        max_length=15,
+        blank=True,
+        verbose_name='IP-адрес',
     )
     order_index = models.SmallIntegerField(
         default=1,

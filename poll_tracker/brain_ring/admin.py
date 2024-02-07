@@ -8,13 +8,14 @@ class QuestionAdmin(admin.ModelAdmin):
     """Регистрация модели вопросов в админке."""
 
     list_display = (
-        'stage',
+        'pk',
         'question_index',
         'is_active',
         'text',
         'options',
         'correct_answer',
+        'points',
     )
-    list_editable = ('question_index', 'is_active',)
-    search_fields = ('stage', 'question_index',)
-    list_filter = ('stage', 'is_active',)
+    list_editable = ('question_index', 'is_active', 'points',)
+    search_fields = ('question_index',)
+    list_filter = ('is_active',)
