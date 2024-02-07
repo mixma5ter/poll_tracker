@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 from core.models import CreatedModel
@@ -35,8 +36,8 @@ class Contest(CreatedModel):
     )
     is_active = models.BooleanField(
         default=False,
-        verbose_name='Идет голосование',
-        help_text='Установите флажок перед началом голосования, снимите после завершения',
+        verbose_name='Конкурс активен',
+        help_text='Установите флажок перед началом конкурса, снимите после завершения',
     )
 
     def __str__(self):
@@ -179,9 +180,19 @@ class Stage(CreatedModel):
     )
     criterias = models.ManyToManyField(
         'Criteria',
+        blank=True,
+        null=True,
         related_name='stages',
         verbose_name='Критерии',
         help_text='Выберите критерии этапа конкурса.',
+    )
+    questions = models.ManyToManyField(
+        'brain_ring.Question',
+        blank=True,
+        null=True,
+        related_name='stages',
+        verbose_name='Вопросы',
+        help_text='Выберите вопросы для брейн-ринга.',
     )
     order_index = models.SmallIntegerField(
         default=1,

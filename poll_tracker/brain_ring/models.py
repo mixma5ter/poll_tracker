@@ -1,16 +1,13 @@
 from django.db import models
 
-from contests.models import Stage
-
 
 class Question(models.Model):
     """Модель вопроса."""
 
     stage = models.ForeignKey(
-        Stage,
+        'contests.Stage',
         limit_choices_to={'type': 'brain_ring'},
         on_delete=models.CASCADE,
-        related_name='questions',
         verbose_name='Этап',
         help_text='Выберите этап',
     )
