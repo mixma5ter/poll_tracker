@@ -56,7 +56,7 @@ class ContestsListView(ListView):
         context['judge_slug'] = self.kwargs['judge_slug']
         context['judge_name'] = self.judge
         context['breadcrumbs'] = [
-            ['/', 'Главная'],
+            ['/reg/', 'Главная'],
             ['', 'Конкурсы'],
         ]
         return context
@@ -78,7 +78,7 @@ class ContestDetailView(DetailView):
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['tracks'] = self.get_object().tracks.all().order_by('order_index')
         context['breadcrumbs'] = [
-            ['/', 'Главная'],
+            ['/reg/', 'Главная'],
             [f'/contests/{judge_slug}/', 'Конкурсы'],
             ['', f'{self.get_object()}'],
         ]
@@ -102,7 +102,7 @@ class ContestStageView(DetailView):
         context['judge_slug'] = self.kwargs['judge_slug']
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['breadcrumbs'] = [
-            ['/', 'Главная'],
+            ['/reg/', 'Главная'],
             [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
             [f'/contests/{self.kwargs["judge_slug"]}/{self.kwargs["contest_pk"]}',
              f'{self.get_object()}'],
@@ -168,7 +168,7 @@ def add_score_view(request, judge_slug: str, contest_pk: int, track_pk: int, sta
         formset = ScoreFormset(queryset=data)
 
     breadcrumbs = [
-        ['/', 'Главная'],
+        ['/reg/', 'Главная'],
         [f'/contests/{judge_slug}/', 'Конкурсы'],
         [f'/contests/{judge_slug}/{contest_pk}', contest],
         [f'/contests/{judge_slug}/{contest_pk}/{track_pk}', track],
@@ -207,7 +207,7 @@ def results_view(request, judge_slug: str, contest_pk: int):
     table = ResultTable(sorted_results)
 
     breadcrumbs = [
-        ['/', 'Главная'],
+        ['/reg/', 'Главная'],
         [f'/contests/{judge_slug}/', 'Конкурсы'],
         [f'/contests/{judge_slug}/{contest_pk}', contest],
         ['', f'Результаты'],

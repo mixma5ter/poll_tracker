@@ -9,7 +9,7 @@ from brain_ring.views import brain_ring_page, get_current_question, submit_answe
 from contests.views import IndexView
 urlpatterns = [
     # главная страница
-    path('', IndexView.as_view(), name='index'),
+    path('reg/', IndexView.as_view(), name='index'),
     # конкурсы
     path('contests/', include('contests.urls', namespace='contests')),
     # api
