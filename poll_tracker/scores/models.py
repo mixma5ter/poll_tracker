@@ -43,6 +43,8 @@ class Score(CreatedModel):
     criteria = ChainedForeignKey(
         'contests.Criteria',
         db_index=True,
+        blank=True,
+        null=True,
         chained_field='stage',
         chained_model_field='stages',
         show_all=False,
@@ -51,9 +53,24 @@ class Score(CreatedModel):
         verbose_name='Критерий',
         help_text='Выберите критерий',
     )
+    question = ChainedForeignKey(
+        'brain_ring.Question',
+        db_index=True,
+        blank=True,
+        null=True,
+        chained_field='stage',
+        chained_model_field='stages',
+        show_all=False,
+        auto_choose=True,
+        on_delete=models.CASCADE,
+        verbose_name='Вопрос',
+        help_text='Выберите вопрос',
+    )
     judge = ChainedForeignKey(
         'users.Judge',
         db_index=True,
+        blank=True,
+        null=True,
         chained_field='track',
         chained_model_field='tracks',
         show_all=False,

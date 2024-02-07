@@ -16,6 +16,7 @@ class Contestant(CreatedModel):
     )
     org_name = models.CharField(
         max_length=255,
+        blank=True,
         verbose_name='Организация',
         help_text='Введите организацию',
     )

@@ -205,6 +205,11 @@ class Stage(CreatedModel):
 
     criterias_list.short_description = 'Критерии'
 
+    def questions_list(self):
+        return '{}'.format(', '.join([question.text for question in self.questions.all()]))
+
+    questions_list.short_description = 'Вопросы'
+
     def __str__(self):
         return self.title
 
