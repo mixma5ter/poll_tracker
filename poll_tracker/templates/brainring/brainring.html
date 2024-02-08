@@ -6,8 +6,67 @@
 
 {% block content %}
 
-<h2 id="question-text"></h2>
-<ul id="options-list"></ul>
+<style>
+  body, header {
+    background-color: #1E1E1E;
+    color: #FFFFFF;
+  }
+
+  /* Переносим элементы внутри блока посередине */
+  .center-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto; /* Высота равная высоте видимой области */
+  }
+
+  h2 {
+    font-size: 24px;
+    font-weight: 600;
+    margin: 20px 40px;
+    text-align: center;
+  }
+
+  /* Создаем сетку для кнопок */
+  .options-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-gap: 10px;
+    justify-items: center;
+    align-items: center;
+    margin: 20px 20px;
+    padding: 0;
+    list-style-type: none;
+  }
+
+  .options-grid .option-button {
+    width: 400px;
+    height: 100px;
+    margin-bottom: 0;
+  }
+
+  /* Анимация при нажатии на кнопку */
+  .options-grid .option-button:active {
+    transform: scale(0.95);
+    color: #FFFFFF;
+    background-color: #FFFFFF80;
+  }
+
+  a {
+    color: #FFFFFF;
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: #FFFFFF80;
+  }
+</style>
+
+<!-- Обертка для центрирования элементов -->
+<div class="center-content">
+  <h2 id="question-text"></h2>
+  <ul id="options-list" class="options-grid"></ul>
+</div>
 
 <script src="{% static 'js/brainring.js' %}"></script>
 

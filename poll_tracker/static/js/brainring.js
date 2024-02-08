@@ -44,7 +44,9 @@ function updateQuestion() {
           optionsList.appendChild(listItem);
         });
 
-        optionsList.style.display = 'block';
+        optionsList.style.display = 'flex'; // Добавляем стиль display: flex;
+        optionsList.style.flexWrap = 'wrap'; // Добавляем стиль flex-wrap: wrap;
+        optionsList.style.justifyContent = 'center'; // Добавляем стиль justify-content: space-evenly;
       } else {
         optionsList.style.display = 'none';
       }
@@ -75,7 +77,7 @@ document.addEventListener('click', function(event) {
 
         // Создаем новый элемент с сообщением об успешной отправке
         var successMessage = document.createElement('div');
-        successMessage.textContent = 'Ответ отправлен';
+        successMessage.textContent = 'Ответ "' + selectedOption + '" отправлен'; // Изменяем текст сообщения
         successMessage.classList.add('alert', 'alert-success');
 
         // Добавляем элемент с сообщением об успешной отправке в разметку
