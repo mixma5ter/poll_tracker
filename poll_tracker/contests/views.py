@@ -70,6 +70,14 @@ class ContestDetailView(DetailView):
     context_object_name = 'contest'
     pk_url_kwarg = 'contest_pk'
 
+    def get_breadcrumbs(self):
+        judge_slug = self.kwargs['judge_slug']
+        return [
+            ['/reg/', 'Главная'],
+            [f'/contests/{judge_slug}/', 'Конкурсы'],
+            ['', f'{self.get_object()}'],
+        ]
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         judge_slug = self.kwargs['judge_slug']
@@ -77,11 +85,7 @@ class ContestDetailView(DetailView):
         context['judge_slug'] = judge_slug
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
         context['tracks'] = self.get_object().tracks.all().order_by('order_index')
-        context['breadcrumbs'] = [
-            ['/reg/', 'Главная'],
-            [f'/contests/{judge_slug}/', 'Конкурсы'],
-            ['', f'{self.get_object()}'],
-        ]
+        context['breadcrumbs'] = self.get_breadcrumbs()
         return context
 
 
@@ -93,6 +97,17 @@ class ContestStageView(DetailView):
     context_object_name = 'contest'
     pk_url_kwarg = 'contest_pk'
 
+    def get_breadcrumbs(self):
+        judge_slug = self.kwargs['judge_slug']
+        contest_pk = self.kwargs['contest_pk']
+        track_pk = self.kwargs['track_pk']
+        return [
+            ['/reg/', 'Главная'],
+            [f'/contests/{judge_slug}/', 'Конкурсы'],
+            [f'/contests/{judge_slug}/{contest_pk}', f'{self.get_object()}'],
+            ['', Track.objects.get(pk=track_pk)],
+        ]
+
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = 'Этапы конкурса'
@@ -101,13 +116,7 @@ class ContestStageView(DetailView):
         context['stages'] = self.get_object().stages.all().order_by('order_index')
         context['judge_slug'] = self.kwargs['judge_slug']
         context['judge_name'] = get_object_or_404(Judge, slug=self.kwargs['judge_slug'])
-        context['breadcrumbs'] = [
-            ['/reg/', 'Главная'],
-            [f'/contests/{self.kwargs["judge_slug"]}/', 'Конкурсы'],
-            [f'/contests/{self.kwargs["judge_slug"]}/{self.kwargs["contest_pk"]}',
-             f'{self.get_object()}'],
-            ['', f'{track}'],
-        ]
+        context['breadcrumbs'] = self.get_breadcrumbs()
         return context
 
 
