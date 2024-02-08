@@ -22,7 +22,11 @@ def get_client_ip(request):
 def get_current_question(request):
     """Получение текущего вопроса."""
 
-    question = Question.objects.filter(is_active=True).first()
+    question = Question.objects.filter(
+        stages__contest__is_active=True,
+        stages__type='brain_ring',
+        is_active=True
+    ).first()
 
     if question:
         response = {
@@ -42,7 +46,12 @@ def submit_answer(request):
     """Обработка ответа на вопрос."""
 
     contestant_ip = get_client_ip(request)
-    contestant = get_object_or_404(Contestant, ip_address=contestant_ip)  # Получаем участника по IP-адресу
+
+    # Получаем участника из активного конкурса по IP-адресу
+    contestant = get_object_or_404(
+        Contestant.objects.filter(tracks__contest__is_active=True),
+        ip_address=contestant_ip
+    )
 
     try:
         body_unicode = request.body.decode('utf-8')

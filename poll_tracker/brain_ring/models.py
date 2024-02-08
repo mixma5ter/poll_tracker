@@ -34,7 +34,7 @@ class Question(models.Model):
     )
 
     def __str__(self):
-        return f'Вопрос {self.question_index}'
+        return self.text
 
     class Meta:
         verbose_name = 'Вопрос'
