@@ -46,9 +46,8 @@ class Command(BaseCommand):
     def set_default(self, contest, criterias):
         scores = Score.objects.filter(contest=contest)
         for score in scores:
-            if score.score != score.criteria.min_score:
-                score.score = score.criteria.min_score
-                score.save()
+            score.score = 0
+            score.save()
 
         message = f'Оценки обнулены для конкурса {contest.title}'
         self.stdout.write(self.style.SUCCESS(message))
