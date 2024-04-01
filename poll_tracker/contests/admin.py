@@ -43,7 +43,7 @@ class ContestAdmin(MyAdmin):
     list_editable = ('visible', 'is_active',)
     search_fields = ('title', 'description', 'start_date',)
     list_filter = ('start_date', 'pub_date', 'update_date', 'visible', 'is_active',)
-    actions = ['add_scores', 'set_default']
+    actions = ['add_scores', 'set_default', 'save_results']
 
     @admin.action(description='Добавить оценки')
     def add_scores(self, request, queryset):
@@ -62,6 +62,27 @@ class ContestAdmin(MyAdmin):
                 self.message_user(request, message=message, level=messages.SUCCESS)
             else:
                 self.message_user(request, message=message, level=messages.ERROR)
+
+    @admin.action(description='Сохранить оценки в Excel')
+    def save_results(self, request, queryset):
+        wb = Workbook()
+        ws = wb.active
+        ws.append([])  # Добавляем пустую строку
+
+        for contest in queryset:
+            if not contest:
+                return None
+            scores = Score.objects.filter(contest=contest)
+            for score in scores:
+                ws.append([score.__str__()])
+
+            ws.append([])  # Добавляем пустую строку
+
+        # Создаем response и прикрепляем к нему excel файл
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename=contest_scores.xlsx'
+        wb.save(response)
+        return response
 
 
 @admin.register(Track)
