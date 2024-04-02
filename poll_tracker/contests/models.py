@@ -135,7 +135,7 @@ class Stage(CreatedModel):
     TYPE_CHOICES = (
         ('judged', 'Оценивается судьями'),
         ('brain_ring', 'Брейн-ринг'),
-        ('not_judged', 'Не оценивается'),
+        ('not_judged', 'Не оценивается судьями'),
     )
 
     COUNTING_METHOD_CHOICES = (
