@@ -43,7 +43,18 @@ class Command(BaseCommand):
     def create_scores(self, contest, tracks, stages):
         for track in tracks:
             for stage in stages:
-                if stage.type == 'judged':
+                if stage.type == 'brain_ring':
+                    for contestant in track.contestants.all():
+                        for question in stage.questions.all():
+                            Score.objects.get_or_create(
+                                contest=contest,
+                                track=track,
+                                stage=stage,
+                                question=question,
+                                judge=None,
+                                contestant=contestant,
+                            )
+                else:
                     for contestant in track.contestants.all():
                         for judge in track.judges.all():
                             for criteria in stage.criterias.all():
@@ -55,17 +66,6 @@ class Command(BaseCommand):
                                     judge=judge,
                                     contestant=contestant,
                                 )
-                elif stage.type == 'brain_ring':
-                    for contestant in track.contestants.all():
-                        for question in stage.questions.all():
-                            Score.objects.get_or_create(
-                                contest=contest,
-                                track=track,
-                                stage=stage,
-                                question=question,
-                                judge=None,
-                                contestant=contestant,
-                            )
 
         message = f'Оценки добавлены для конкурса {contest.title}.'
         self.stdout.write(self.style.SUCCESS(message))
