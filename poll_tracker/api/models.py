@@ -1,7 +1,7 @@
 from django.db import models
 from smart_selects.db_fields import ChainedForeignKey
 
-from poll_tracker.settings import ALLOWED_HOSTS
+from poll_tracker.settings import ALLOWED_HOSTS, PORT
 
 
 class APIClient(models.Model):
@@ -55,7 +55,8 @@ class APIClient(models.Model):
         if not self.pk:  # Проверяем, что объект является новым
             # Генерируем ссылку на API на основе имени нового объекта
             host = ALLOWED_HOSTS[0]
-            self.link = f'http://{host}/api/{self.title}'
+            port = PORT
+            self.link = f'http://{host}:{port}/api/{self.title}/'
         super(APIClient, self).save(*args, **kwargs)
 
     class Meta:
