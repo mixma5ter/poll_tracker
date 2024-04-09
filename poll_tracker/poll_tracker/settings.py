@@ -48,9 +48,11 @@ INSTALLED_APPS = [
     'smart_selects',  # Регистрация приложения smart_selects для админки
     'django_tables2',  # Регистрация приложения django_tables2 для таблиц
     'debug_toolbar',  # Регистрация приложения DjDT
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -63,6 +65,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'poll_tracker.urls'
+CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 TEMPLATES = [
