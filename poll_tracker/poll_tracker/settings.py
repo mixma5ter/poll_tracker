@@ -59,6 +59,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',  # Приложение DjDT
+    'middleware.HttpsToHttpMiddleware',  # настройки middleware для http соединения
 ]
 
 ROOT_URLCONF = 'poll_tracker.urls'
