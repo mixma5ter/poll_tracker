@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 from django.contrib import admin, messages
 from django.core.management import call_command
 from django.http import HttpResponse
@@ -8,7 +10,7 @@ from api.models import APIClient
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
 from core.management.commands.set_default import Command as SetDefaultScoresCommand
-from core.utils import process_contest_data
+from core.utils import process_contest_data, process_contest_data_with_stages
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -252,30 +254,51 @@ class APIClientAdmin(MyAdmin):
 
     @admin.action(description='Сохранить оценки в Excel')
     def save_results(self, request, queryset):
-        # Создаем новый workbook в (csv) формате разделенный запятыми
         wb = Workbook()
         ws = wb.active
-        ws.append(['Конкурс', 'Имя участника', 'Название организации', 'Оценка'])
-        ws.append([])  # Добавляем пустую строку
+
+        # Получаем список названий всех этапов для всех клиентов в queryset
+        stages = OrderedDict()
+        for client in queryset:
+            contest = client.contest
+            for stage in contest.stages.all().order_by('order_index'):
+                stages[stage.title] = None  # None здесь используется как placeholder
+
+        # Формируем заголовок с названиями этапов и 'Итого'
+        headers = ['Конкурс', 'Имя участника', 'Название организации'] + list(stages.keys()) + ['Итого']
+        ws.append(headers)
 
         for client in queryset:
             contest = client.contest
             if not contest:
-                return None
+                continue
             track = client.track
             stage = client.stage
-            results = process_contest_data(contest, track, stage)
-            for row in results:
-                ws.append([contest.title,
-                           row['contestant__name'],
-                           row['contestant__org_name'],
-                           row['score__sum']])
+            results = process_contest_data_with_stages(contest, track, stage)
 
-            ws.append([])  # Добавляем пустую строку
+            for result in results:
+                # Создаем список с результатами этапов и итоговой суммой
+                row_data = [
+                               contest.title,
+                               result['contestant__name'],
+                               result['contestant__org_name']
+                           ] + [
+                               result['stages_scores'].get(stage_name, 0) for stage_name in stages
+                           ] + [
+                               result['score__sum_total']
+                           ]
+
+                # Добавляем данные в Excel
+                ws.append(row_data)
+
+            # Добавляем пустую строку для разделения конкурсов
+            ws.append([])
 
         # Создаем response и прикрепляем к нему excel файл
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = f'attachment; filename=contest_scores.xlsx'
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename="contest_scores.xlsx"'
+
+        # Сохраняем рабочую книгу в response
         wb.save(response)
         return response
 
