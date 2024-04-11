@@ -8,4 +8,4 @@ class ResultTable(tables.Table):
     class Meta:
         model = Score
         template_name = 'django_tables2/bootstrap.html'
-        fields = ('contestant__name', 'contestant__org_name', 'score__sum',)
+        fields = ('contestant__name', 'contestant__org_name', 'score__sum_total',)

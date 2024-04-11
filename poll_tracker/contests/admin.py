@@ -10,7 +10,7 @@ from api.models import APIClient
 from contests.models import Contest, Criteria, Stage, Track
 from core.management.commands.add_scores import Command as AddScoresCommand
 from core.management.commands.set_default import Command as SetDefaultScoresCommand
-from core.utils import process_contest_data, process_contest_data_with_stages
+from core.utils import process_contest_data
 from scores.models import Score
 from users.models import Contestant, Judge
 
@@ -274,7 +274,7 @@ class APIClientAdmin(MyAdmin):
                 continue
             track = client.track
             stage = client.stage
-            results = process_contest_data_with_stages(contest, track, stage)
+            results = process_contest_data(contest, track, stage)
 
             for result in results:
                 # Создаем список с результатами этапов и итоговой суммой

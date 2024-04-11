@@ -21,14 +21,27 @@ class ContestResultJson(viewsets.ModelViewSet):
         stage = client.stage
         results = process_contest_data(contest, track, stage)
         host = self.request.get_host()
+
+        data_with_photos = []
         for item in results:
+            # Дополнительно обогащаем данные URL фотографий
+            if item.get('contestant__photo'):
+                item['contestant__photo'] = f'http://{host}{MEDIA_URL}{item["contestant__photo"]}'
+
+            # Добавляем данные конкурса (при наличии)
             item['contest__title'] = contest.title
             item['contest__track'] = track.title if track else ""
             item['contest__stage'] = stage.title if stage else ""
-            if item['contestant__photo']:
-                item['contestant__photo'] = f'http://{host}{MEDIA_URL}{item["contestant__photo"]}'
-        return list(results)
+
+            # Можно добавить дополнительную информацию в item, если это необходимо
+            data_with_photos.append(item)
+
+        return data_with_photos
 
     def list(self, request, *args, **kwargs):
         results = self.get_queryset()
-        return JsonResponse({'results': results})
+        if results:
+            return JsonResponse({'results': results})
+        else:
+            # Вы можете отправить пустой результат или сообщение об ошибке
+            return JsonResponse({'message': 'No results found'}, status=404)
