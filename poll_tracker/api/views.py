@@ -18,8 +18,7 @@ class ContestResultJson(viewsets.ModelViewSet):
             return None
 
         track = client.track
-        stage = client.stage
-        results = process_contest_data(contest, track, stage)
+        results = process_contest_data(contest, track)
         host = self.request.get_host()
 
         data_with_photos = []
@@ -31,7 +30,6 @@ class ContestResultJson(viewsets.ModelViewSet):
             # Добавляем данные конкурса (при наличии)
             item['contest__title'] = contest.title
             item['contest__track'] = track.title if track else ""
-            item['contest__stage'] = stage.title if stage else ""
 
             # Можно добавить дополнительную информацию в item, если это необходимо
             data_with_photos.append(item)

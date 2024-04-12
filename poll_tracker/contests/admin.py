@@ -246,7 +246,6 @@ class APIClientAdmin(MyAdmin):
         'link',
         'contest',
         'track',
-        'stage',
     )
     list_display_links = ('pk', 'title',)
     readonly_fields = ('link',)
