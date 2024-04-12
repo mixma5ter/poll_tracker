@@ -15,13 +15,17 @@ def format_score(score):
 
 
 def process_contest_data(contest, track=None, stage=None):
-    scores = Score.objects.filter(contest=contest)
-
     # Если передан параметр track, фильтруем результаты по нему
-    if track:
+    if track is not None:
         tracks = [track]
     else:
         tracks = contest.tracks.all().order_by('order_index')
+
+    # Если передан параметр stage, фильтруем результаты по нему
+    if stage is not None:
+        stages = [stage]
+    else:
+        stages = contest.stages.all().order_by('order_index')
 
     data = []
 
@@ -31,24 +35,22 @@ def process_contest_data(contest, track=None, stage=None):
 
         # Если у потока нет судей, делить на ноль нельзя
         if judges_count == 0:
-            return None
+            continue  # Используем continue для перехода к следующему треку
 
         contestants = Contestant.objects.filter(tracks=track).distinct()
 
         # Обходим всех участников в треке
         for contestant in contestants:
-            contestant_scores = scores.filter(contestant=contestant)
+            contestant_scores = Score.objects.filter(contestant=contestant, contest=contest)
 
             # Подготавливаем данные о сумме оценок для каждого этапа
             stages_scores = {}
-            for stage in contest.stages.all().order_by('order_index'):
+            for stage in stages:
                 stage_scores = contestant_scores.filter(stage=stage)
-                score_sum = stage_scores.aggregate(
-                    Sum('score')
-                )['score__sum'] or 0
+                score_sum = stage_scores.aggregate(Sum('score'))['score__sum'] or 0
 
                 # Если метод подсчета 'avg', делим сумму на количество судей
-                if stage.counting_method == 'avg':
+                if stage.counting_method == 'avg' and judges_count > 0:
                     score_sum /= judges_count
 
                 # Округляем до двух знаков и удаляем незначащие нули
@@ -62,11 +64,11 @@ def process_contest_data(contest, track=None, stage=None):
                 'contestant__photo': contestant.photo.url if contestant.photo else '',
                 'contestant__name': contestant.name,
                 'contestant__org_name': contestant.org_name,
-                'score__sum_total': format_score(total_sum),  # округляем здесь
+                'score__sum_total': format_score(total_sum),
                 'stages_scores': stages_scores,
             })
 
-    # Сортируем результаты по общей сумме оценок
-    sorted_results = sorted(data, key=itemgetter('score__sum_total'), reverse=True)
+    # Сортируем результаты по общей сумме оценок, приведя строки к числам
+    sorted_results = sorted(data, key=lambda x: float(x['score__sum_total']), reverse=True)
 
     return sorted_results
