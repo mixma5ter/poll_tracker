@@ -39,6 +39,17 @@ class APIClient(models.Model):
         verbose_name='Поток',
         help_text='Выберите поток'
     )
+    stage = ChainedForeignKey(
+        'contests.Stage',
+        db_index=True,
+        chained_field='contest',
+        chained_model_field='contest',
+        on_delete=models.SET_NULL,  # NULL при удалении связанного объекта
+        null=True,
+        blank=True,
+        verbose_name='Этап',
+        help_text='Выберите этап'
+    )
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Проверяем, что объект является новым
