@@ -7,11 +7,8 @@ from users.models import Contestant
 
 
 def format_score(score):
-    """Форматирует число, удаляя незначащие нули после запятой."""
-    # Округление до двух знаков после запятой
-    rounded_score = round(score, 2)
-    # Преобразование в строку и удаление незначащих нулей
-    return f"{rounded_score:.2f}".rstrip('0').rstrip('.')
+    """Округляет число до целого."""
+    return int(round(score, 0))
 
 
 def process_contest_data(contest, track=None, stage=None):
@@ -53,7 +50,7 @@ def process_contest_data(contest, track=None, stage=None):
                 if stage.counting_method == 'avg' and judges_count > 0:
                     score_sum /= judges_count
 
-                # Округляем до двух знаков и удаляем незначащие нули
+                # Округляем до двух знаков
                 stages_scores[stage.title] = format_score(score_sum)
 
             # Подсчитываем общую сумму оценок для участников
@@ -68,7 +65,7 @@ def process_contest_data(contest, track=None, stage=None):
                 'stages_scores': stages_scores,
             })
 
-    # Сортируем результаты по общей сумме оценок, приведя строки к числам
-    sorted_results = sorted(data, key=lambda x: float(x['score__sum_total']), reverse=True)
+    # Сортируем результаты по общей сумме оценок
+    sorted_results = sorted(data, key=lambda x: x['score__sum_total'], reverse=True)
 
     return sorted_results
