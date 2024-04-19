@@ -32,6 +32,7 @@ class ContestResultJson(viewsets.ModelViewSet):
             item['contest__title'] = contest.title
             item['contest__track'] = track.title if track else ""
             item['contest__stage'] = stage.title if stage else ""
+            item['contest__stage'] = stage.title if stage else "Итог"
 
             # Можно добавить дополнительную информацию в item, если это необходимо
             data_with_photos.append(item)
