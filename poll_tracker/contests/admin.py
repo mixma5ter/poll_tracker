@@ -69,14 +69,24 @@ class ContestAdmin(MyAdmin):
     def save_results(self, request, queryset):
         wb = Workbook()
         ws = wb.active
-        ws.append([])  # Добавляем пустую строку
+        header = ['Конкурс', 'Поток', 'Этап', 'Критерий', 'Судья', 'Команда', 'Оценка']
+        ws.append(header)
 
         for contest in queryset:
             if not contest:
-                return None
+                return HttpResponse('Нет выбранных конкурсов.')
             scores = Score.objects.filter(contest=contest)
             for score in scores:
-                ws.append([score.__str__()])
+                row = [
+                    score.contest.title,
+                    score.track.title,
+                    score.stage.title,
+                    score.criteria.title,
+                    score.judge.name,
+                    score.contestant.name,
+                    score.score,
+                ]
+                ws.append(row)
 
             ws.append([])  # Добавляем пустую строку
 
@@ -180,6 +190,7 @@ class ContestantAdmin(MyAdmin):
     def get_html_photo(self, object):
         if object.photo:
             return mark_safe(f'<img src="{object.photo.url}" width=50')
+
     get_html_photo.short_description = 'Миниатюра'
 
 
